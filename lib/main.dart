@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),
-        routes: AppRoutes.routes,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
       ),
     );
   }

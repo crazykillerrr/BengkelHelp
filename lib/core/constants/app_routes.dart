@@ -35,7 +35,7 @@ class AppRoutes {
   static const String roleSelection = '/role-selection';
   static const String login = '/login';
   static const String register = '/register';
-  
+
   // User routes
   static const String userHome = '/user-home';
   static const String searchBengkel = '/search-bengkel';
@@ -50,12 +50,12 @@ class AppRoutes {
   static const String reminderList = '/reminder-list';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
-  
+
   // Seller routes
   static const String sellerHome = '/seller-home';
   static const String registerBengkel = '/register-bengkel';
   static const String addProduct = '/add-product';
-  
+
   // Admin routes
   static const String adminHome = '/admin-home';
 
@@ -63,76 +63,76 @@ class AppRoutes {
     switch (settings.name) {
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
-      
+
       case roleSelection:
         return MaterialPageRoute(builder: (_) => const RoleSelectionScreen());
-      
+
       case login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
-      
+
       case register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
-      
+
       // User routes
       case userHome:
         return MaterialPageRoute(builder: (_) => const UserHomeScreen());
-      
+
       case searchBengkel:
         return MaterialPageRoute(builder: (_) => const SearchBengkelScreen());
-      
+
       case bengkelDetail:
         final bengkelId = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => BengkelDetailScreen(bengkelId: bengkelId),
         );
-      
+
       case callMontir:
         return MaterialPageRoute(builder: (_) => const CallMontirScreen());
-      
+
       case productList:
         return MaterialPageRoute(builder: (_) => const ProductListScreen());
-      
+
       case productDetail:
         final productId = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => ProductDetailScreen(productId: productId),
         );
-      
+
       case cart:
         return MaterialPageRoute(builder: (_) => const CartScreen());
-      
+
       case orderList:
         return MaterialPageRoute(builder: (_) => const OrderListScreen());
-      
+
       case wallet:
         return MaterialPageRoute(builder: (_) => const BengkelPayScreen());
-      
+
       case topUp:
         return MaterialPageRoute(builder: (_) => const TopUpScreen());
-      
+
       case reminderList:
         return MaterialPageRoute(builder: (_) => const ReminderListScreen());
-      
+
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
-      
+
       case editProfile:
         return MaterialPageRoute(builder: (_) => const EditProfileScreen());
-      
+
       // Seller routes
       case sellerHome:
         return MaterialPageRoute(builder: (_) => const SellerHomeScreen());
-      
+
       case registerBengkel:
         return MaterialPageRoute(builder: (_) => const RegisterBengkelScreen());
-      
+
       case addProduct:
         return MaterialPageRoute(builder: (_) => const AddProductScreen());
-      
+
       // Admin routes
       case adminHome:
         return MaterialPageRoute(builder: (_) => const AdminHomeScreen());
-      
+
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
