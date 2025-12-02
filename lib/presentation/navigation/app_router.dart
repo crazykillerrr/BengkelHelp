@@ -3,6 +3,7 @@ import '../../core/constants/app_routes.dart';
 /// Lightweight router constants adapter used across the UI.
 /// Maps older `AppRouter` references to the centralized `AppRoutes` constants.
 class AppRouter {
+  static const String splash = '/';
   static const String signIn = AppRoutes.login;
   static const String signUp = AppRoutes.register;
 
