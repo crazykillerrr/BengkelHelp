@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'core/constants/app_routes.dart';
 import 'core/themes/app_theme.dart';
@@ -14,12 +15,23 @@ import 'presentation/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    // On web, Firebase requires explicit FirebaseOptions or index.html config.
+    // Wrap initialization in try/catch so missing web options don't crash the app.
+    await Firebase.initializeApp();
+  } catch (e) {
+    // If initialization fails (e.g., web with missing FirebaseOptions), log and continue.
+    // Many features that depend on Firebase will be non-functional until properly configured.
+    debugPrint('Warning: Firebase.initializeApp() failed: $e');
+    if (kIsWeb) {
+      debugPrint('Running on web — ensure FirebaseOptions are provided for web in main.dart or generated firebase_options.dart');
+    }
+  }
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +50,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         home: const SplashScreen(),
-        routes: AppRoutes.routes,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
       ),
     );
   }

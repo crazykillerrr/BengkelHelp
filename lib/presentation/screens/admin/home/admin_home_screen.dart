@@ -18,9 +18,9 @@ class AdminHomeScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(AppTheme.spacingL),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.primaryColor,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(AppTheme.radiusXL),
                   bottomRight: Radius.circular(AppTheme.radiusXL),
                 ),
@@ -36,7 +36,7 @@ class AdminHomeScreen extends StatelessWidget {
                   Text(
                     'Kelola sistem BengkelHelp',
                     style: AppTheme.bodyMedium.copyWith(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withAlpha((0.9 * 255).round()),
                     ),
                   ),
                 ],
@@ -131,7 +131,7 @@ class _AdminMenuCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingM),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha((0.1 * 255).round()),
                 borderRadius: BorderRadius.circular(AppTheme.radiusM),
               ),
               child: Icon(icon, color: color, size: 32),

@@ -25,9 +25,9 @@ class ProfileScreen extends StatelessWidget {
             // Header
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingXL),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.primaryColor,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(AppTheme.radiusXL),
                   bottomRight: Radius.circular(AppTheme.radiusXL),
                 ),
@@ -61,7 +61,7 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     user?.email ?? '',
                     style: AppTheme.bodyMedium.copyWith(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withAlpha((0.9 * 255).round()),
                     ),
                   ),
                 ],

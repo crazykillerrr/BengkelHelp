@@ -58,9 +58,9 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingL),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.primaryColor,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(AppTheme.radiusXL),
                 bottomRight: Radius.circular(AppTheme.radiusXL),
               ),
@@ -104,7 +104,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.search,
                               size: 64,
                               color: AppTheme.textHint,
