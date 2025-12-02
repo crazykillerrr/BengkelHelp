@@ -20,13 +20,19 @@ class AuthProvider with ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
   
   AuthProvider() {
-    _checkAuthState();
+    // HAPUS _checkAuthState() dari sini
+    _initAuth(); // Ganti dengan init yang lebih aman
   }
   
-  Future<void> _checkAuthState() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      await _loadUserData(user.uid);
+  Future<void> _initAuth() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await _loadUserData(user.uid);
+      }
+    } catch (e) {
+      print('Auth init error: $e');
+      // Jangan throw error, biar app tetap jalan
     }
   }
   
