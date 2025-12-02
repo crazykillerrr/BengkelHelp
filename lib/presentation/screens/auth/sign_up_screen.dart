@@ -87,7 +87,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                const Text(
                   'Daftar Akun Baru',
                   style: AppTheme.h2,
                   textAlign: TextAlign.center,
@@ -282,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Sudah punya akun? ',
                       style: AppTheme.bodyMedium,
                     ),

@@ -84,10 +84,10 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(AppTheme.spacingL),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
                       borderRadius: BorderRadius.circular(AppTheme.radiusXL),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.build_circle,
                       size: 64,
                       color: AppTheme.primaryColor,
@@ -98,7 +98,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: AppTheme.spacingL),
                 
                 // Title
-                Text(
+                const Text(
                   'Masuk ke BengkelHelp',
                   style: AppTheme.h2,
                   textAlign: TextAlign.center,
@@ -202,7 +202,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Belum punya akun? ',
                       style: AppTheme.bodyMedium,
                     ),

@@ -5,7 +5,9 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../data/providers/bengkel_provider.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/order_provider.dart';
-import '../../../../data/models/user_model.dart';
+import '../../../../data/models/bengkel_model.dart';
+import '../../../../data/models/order_model.dart';
+import '../../../../data/models/order_item.dart';
 import '../../../widgets/common/custom_button.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -171,9 +173,9 @@ class _BookingScreenState extends State<BookingScreen> {
             // Bengkel Info
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingL),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.primaryColor,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(AppTheme.radiusXL),
                   bottomRight: Radius.circular(AppTheme.radiusXL),
                 ),
@@ -236,16 +238,18 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Pilih Layanan', style: AppTheme.h3),
+                  const Text('Pilih Layanan', style: AppTheme.h3),
                   const SizedBox(height: AppTheme.spacingM),
                   ...AppConstants.serviceCategories.map((service) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: AppTheme.spacingS),
+                      // Using RadioListTile API (groupValue/onChanged) — marked deprecated
+                      // ignore: deprecated_member_use
                       child: RadioListTile<String>(
                         title: Text(service),
                         value: service,
-                        groupValue: _selectedService,
-                        onChanged: (value) {
+                        groupValue: _selectedService, // ignore: deprecated_member_use
+                        onChanged: (value) { // ignore: deprecated_member_use
                           setState(() {
                             _selectedService = value;
                           });
@@ -261,7 +265,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: AppTheme.spacingL),
                   
                   // Date & Time
-                  Text('Pilih Tanggal & Waktu', style: AppTheme.h3),
+                  const Text('Pilih Tanggal & Waktu', style: AppTheme.h3),
                   const SizedBox(height: AppTheme.spacingM),
                   
                   Row(
@@ -321,7 +325,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: AppTheme.spacingL),
                   
                   // Notes
-                  Text('Catatan (Opsional)', style: AppTheme.h3),
+                  const Text('Catatan (Opsional)', style: AppTheme.h3),
                   const SizedBox(height: AppTheme.spacingM),
                   TextField(
                     controller: _notesController,

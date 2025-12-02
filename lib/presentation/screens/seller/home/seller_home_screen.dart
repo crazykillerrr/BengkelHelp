@@ -46,9 +46,9 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.all(AppTheme.spacingL),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppTheme.primaryColor,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(AppTheme.radiusXL),
                     bottomRight: Radius.circular(AppTheme.radiusXL),
                   ),
@@ -64,7 +64,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                     Text(
                       'Halo, ${user?.name ?? "Penjual"}!',
                       style: AppTheme.bodyMedium.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withAlpha((0.9 * 255).round()),
                       ),
                     ),
                   ],
@@ -73,9 +73,9 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
             ),
             
             // Statistics Cards
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(AppTheme.spacingL),
+                padding: EdgeInsets.all(AppTheme.spacingL),
                 child: Row(
                   children: [
                     Expanded(
@@ -86,7 +86,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                         color: AppTheme.accentColor,
                       ),
                     ),
-                    const SizedBox(width: AppTheme.spacingM),
+                    SizedBox(width: AppTheme.spacingM),
                     Expanded(
                       child: _StatCard(
                         icon: Icons.inventory,
@@ -107,7 +107,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Aksi Cepat', style: AppTheme.h3),
+                    const Text('Aksi Cepat', style: AppTheme.h3),
                     const SizedBox(height: AppTheme.spacingM),
                     Row(
                       children: [
@@ -146,7 +146,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Pesanan Terbaru', style: AppTheme.h3),
+                    const Text('Pesanan Terbaru', style: AppTheme.h3),
                     TextButton(
                       onPressed: () {
                         // TODO: Navigate to all orders
@@ -179,7 +179,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.receipt_long,
                             size: 64,
                             color: AppTheme.textHint,
@@ -229,7 +229,7 @@ class _SellerHomeScreenState extends State<SellerHomeScreen> {
                                       vertical: AppTheme.spacingXS,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _getStatusColor(order.status).withOpacity(0.1),
+                                      color: _getStatusColor(order.status).withAlpha((0.1 * 255).round()),
                                       borderRadius: BorderRadius.circular(AppTheme.radiusS),
                                     ),
                                     child: Text(
@@ -360,7 +360,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppTheme.spacingS),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha((0.1 * 255).round()),
               borderRadius: BorderRadius.circular(AppTheme.radiusS),
             ),
             child: Icon(icon, color: color, size: 24),

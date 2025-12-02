@@ -5,7 +5,6 @@ import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/bengkel_provider.dart';
 import '../../../navigation/app_router.dart';
-import '../../../widgets/common/custom_button.dart';
 import '../../../widgets/bengkel/bengkel_card.dart';
 
 class UserHomeScreen extends StatefulWidget {
@@ -66,9 +65,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.all(AppTheme.spacingL),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppTheme.primaryColor,
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(AppTheme.radiusXL),
                       bottomRight: Radius.circular(AppTheme.radiusXL),
                     ),
@@ -92,7 +91,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               Text(
                                 'Butuh bantuan bengkel hari ini?',
                                 style: AppTheme.bodyMedium.copyWith(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withAlpha((0.9 * 255).round()),
                                 ),
                               ),
                             ],
@@ -103,8 +102,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             },
                             child: Container(
                               padding: const EdgeInsets.all(AppTheme.spacingM),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                decoration: BoxDecoration(
+                                color: Colors.white.withAlpha((0.2 * 255).round()),
                                 borderRadius: BorderRadius.circular(AppTheme.radiusM),
                               ),
                               child: const Icon(
@@ -161,7 +160,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Layanan Cepat',
                         style: AppTheme.h3,
                       ),
@@ -229,7 +228,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Bengkel Terdekat',
                         style: AppTheme.h3,
                       ),
@@ -265,7 +264,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_off,
                               size: 64,
                               color: AppTheme.textHint,
@@ -365,12 +364,12 @@ class _QuickActionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppTheme.radiusM),
           boxShadow: AppTheme.shadowLight,
         ),
-        child: Column(
+                child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(AppTheme.spacingM),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha((0.1 * 255).round()),
                 borderRadius: BorderRadius.circular(AppTheme.radiusM),
               ),
               child: Icon(

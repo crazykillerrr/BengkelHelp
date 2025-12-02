@@ -5,6 +5,7 @@ import '../../../../core/themes/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/common/custom_button.dart';
 import '../../../widgets/common/custom_text_field.dart';
 
@@ -58,7 +59,7 @@ class _WalletScreenState extends State<WalletScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Top Up BengkelPay', style: AppTheme.h3),
+              const Text('Top Up BengkelPay', style: AppTheme.h3),
               const SizedBox(height: AppTheme.spacingL),
               
               CustomTextField(
@@ -84,8 +85,8 @@ class _WalletScreenState extends State<WalletScreen> {
                         horizontal: AppTheme.spacingM,
                         vertical: AppTheme.spacingS,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
                         borderRadius: BorderRadius.circular(AppTheme.radiusS),
                       ),
                       child: Text(
@@ -116,24 +117,27 @@ class _WalletScreenState extends State<WalletScreen> {
                     return;
                   }
                   
+                  // Capture navigator and messenger before async gap
                   final authProvider = Provider.of<AuthProvider>(context, listen: false);
                   final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-                  
+                  final navigator = Navigator.of(context);
+                  final messenger = ScaffoldMessenger.of(context);
+
                   final success = await walletProvider.topUp(
                     authProvider.currentUser!.id,
                     amount,
                   );
-                  
+
                   if (mounted) {
-                    Navigator.of(context).pop();
-                    
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    navigator.pop();
+
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text(success ? 'Top up berhasil' : 'Top up gagal'),
                         backgroundColor: success ? AppTheme.successColor : AppTheme.errorColor,
                       ),
                     );
-                    
+
                     _amountController.clear();
                   }
                 },
@@ -177,7 +181,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     Text(
                       'Saldo BengkelPay',
                       style: AppTheme.bodyMedium.copyWith(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withAlpha((0.9 * 255).round()),
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacingS),
@@ -209,8 +213,8 @@ class _WalletScreenState extends State<WalletScreen> {
               ),
               
               // Transactions
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -229,7 +233,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.receipt_long,
                                   size: 64,
                                   color: AppTheme.textHint,
@@ -262,9 +266,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(AppTheme.spacingM),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.successColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusS),
-                                      ),
+                                                      color: AppTheme.successColor.withAlpha((0.1 * 255).round()),
+                                                      borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                                                    ),
                                       child: Icon(
                                         transaction['type'] == 'topup' 
                                             ? Icons.add_circle
@@ -288,9 +292,12 @@ class _WalletScreenState extends State<WalletScreen> {
                                             ),
                                           ),
                                           Text(
-                                            DateFormat('dd MMM yyyy, HH:mm').format(
-                                              (transaction['createdAt'] as Timestamp).toDate(),
-                                            ),
+                                            // Support both Timestamp and DateTime values in transactions
+                                            () {
+                                              final created = transaction['createdAt'];
+                                              final dt = created is Timestamp ? created.toDate() : (created as DateTime);
+                                              return DateFormat('dd MMM yyyy, HH:mm').format(dt);
+                                            }(),
                                             style: AppTheme.bodySmall,
                                           ),
                                         ],

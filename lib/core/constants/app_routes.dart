@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 
 // Import all screens
-import '../../presentation/screens/splash/splash_screen.dart';
-import '../../presentation/screens/auth/sign_in_screen.dart';
-import '../../presentation/screens/auth/sign_up_screen.dart';
-import '../../presentation/screens/auth/role_selection_screen.dart';
+import 'package:bengkelhelp/presentation/screens/splash/splash_screen.dart';
+import 'package:bengkelhelp/presentation/screens/auth/sign_in_screen.dart';
+import 'package:bengkelhelp/presentation/screens/auth/sign_up_screen.dart';
+import 'package:bengkelhelp/presentation/screens/auth/role_selection_screen.dart';
 
 // User screens
-import '../../presentation/screens/user/home/user_home_screen.dart';
-import '../../presentation/screens/user/search/search_bengkel_screen.dart';
-import '../../presentation/screens/user/search/bengkel_detail_screen.dart';
-import '../../presentation/screens/user/booking/call_montir_screen.dart';
-import '../../presentation/screens/user/shop/product_list_screen.dart';
-import '../../presentation/screens/user/shop/product_detail_screen.dart';
-import '../../presentation/screens/user/shop/cart_screen.dart';
-import '../../presentation/screens/user/order/order_list_screen.dart';
-import '../../presentation/screens/user/wallet/bengkel_pay_screen.dart';
-import '../../presentation/screens/user/wallet/top_up_screen.dart';
-import '../../presentation/screens/user/reminder/reminder_list_screen.dart';
-import '../../presentation/screens/user/profile/profile_screen.dart';
-import '../../presentation/screens/user/profile/edit_profile_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/home/user_home_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/search/search_bengkel_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/search/bengkel_detail_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/booking/call_montir_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/shop/product_list_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/shop/product_detail_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/shop/cart_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/order/order_list_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/wallet/bengkel_pay_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/wallet/top_up_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/reminder/reminder_list_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/profile/profile_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/profile/edit_profile_screen.dart';
 
 // Seller screens
-import '../../presentation/screens/seller/home/seller_home_screen.dart';
-import '../../presentation/screens/seller/bengkel/register_bengkel_screen.dart';
-import '../../presentation/screens/seller/product/add_product_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/home/seller_home_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/bengkel/register_bengkel_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/product/add_product_screen.dart';
 
 // Admin screens
-import '../../presentation/screens/admin/home/admin_home_screen.dart';
+import 'package:bengkelhelp/presentation/screens/admin/home/admin_home_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -68,10 +68,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const RoleSelectionScreen());
 
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginScreen());
+        return MaterialPageRoute(builder: (_) => const SignInScreen());
 
       case register:
-        return MaterialPageRoute(builder: (_) => const RegisterScreen());
+        return MaterialPageRoute(builder: (_) => const SignUpScreen());
 
       // User routes
       case userHome:

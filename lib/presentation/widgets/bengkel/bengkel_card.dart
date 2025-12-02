@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/user_model.dart';
+import '../../../data/models/bengkel_model.dart';
 import '../../../core/themes/app_theme.dart';
 
 class BengkelCard extends StatelessWidget {
@@ -126,7 +126,7 @@ class BengkelCard extends StatelessWidget {
                           vertical: AppTheme.spacingXS,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
                           borderRadius: BorderRadius.circular(AppTheme.radiusS),
                         ),
                         child: Text(

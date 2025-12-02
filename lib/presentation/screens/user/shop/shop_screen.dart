@@ -123,7 +123,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.inventory_2,
                           size: 64,
                           color: AppTheme.textHint,
