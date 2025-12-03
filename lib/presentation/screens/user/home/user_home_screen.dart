@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/bengkel_provider.dart';
+import '../../../../data/providers/wallet_provider.dart';
 import '../../../navigation/app_router.dart';
 import '../../../widgets/bengkel/bengkel_card.dart';
 
@@ -16,16 +18,28 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _selectedIndex = 0;
+  final currencyFormat = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       Provider.of<BengkelProvider>(context, listen: false).loadNearbyBengkels();
+      if (authProvider.currentUser != null) {
+        Provider.of<WalletProvider>(context, listen: false)
+            .loadBalance(authProvider.currentUser!.id);
+      }
     });
   }
   
   void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+    
     setState(() {
       _selectedIndex = index;
     });
@@ -35,10 +49,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         // Home - already here
         break;
       case 1:
-        Navigator.of(context).pushNamed(AppRouter.search);
+        // Search
         break;
       case 2:
-        Navigator.of(context).pushNamed(AppRouter.shop);
+        // Orders
         break;
       case 3:
         Navigator.of(context).pushNamed(AppRouter.profile);
@@ -52,7 +66,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     final user = authProvider.currentUser;
     
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -61,185 +75,286 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           },
           child: CustomScrollView(
             slivers: [
-              // App Bar
+              // Top Header with BENGKELHELP
               SliverToBoxAdapter(
                 child: Container(
-                  padding: const EdgeInsets.all(AppTheme.spacingL),
+                  padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
-                    color: AppTheme.primaryColor,
+                    color: Color(0xFF1E3A8A),
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(AppTheme.radiusXL),
-                      bottomRight: Radius.circular(AppTheme.radiusXL),
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
                     ),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'BENGKELHELP',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  // TODO: Notifications
+                                },
+                                icon: const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed(AppRouter.wallet);
+                                },
+                                icon: const Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Info Cards Row
+                      Row(
+                        children: [
+                          // BengkelPay Card
+                          Expanded(
+                            child: Consumer<WalletProvider>(
+                              builder: (context, walletProvider, _) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'BengkelPay',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        currencyFormat.format(walletProvider.balance),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF1E3A8A),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Top Up Card
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(AppRouter.wallet);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Top Up',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.add_circle,
+                                          color: Color(0xFFFFA500),
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Isi Saldo',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1E3A8A),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Coin Card
+                          Container(
+                            width: 80,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Column(
+                              children: [
+                                Text(
+                                  'Koin',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  '5000',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1E3A8A),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Top Bengkel Section
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Halo, ${user?.name ?? "User"}!',
-                                style: AppTheme.h3.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: AppTheme.spacingXS),
-                              Text(
-                                'Butuh bantuan bengkel hari ini?',
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: Colors.white.withAlpha((0.9 * 255).round()),
-                                ),
-                              ),
-                            ],
+                          const Text(
+                            'Top Bengkel',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pushNamed(AppRouter.wallet);
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(AppRouter.search);
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(AppTheme.spacingM),
-                                decoration: BoxDecoration(
-                                color: Colors.white.withAlpha((0.2 * 255).round()),
-                                borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                              ),
-                              child: const Icon(
-                                Icons.account_balance_wallet,
-                                color: Colors.white,
+                            child: const Text(
+                              'Lihat Semua',
+                              style: TextStyle(
+                                color: Color(0xFFFFA500),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: AppTheme.spacingL),
-                      
-                      // Search Bar
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(AppRouter.search);
+                      const SizedBox(height: 12),
+                      // Horizontal Bengkel Cards
+                      Consumer<BengkelProvider>(
+                        builder: (context, bengkelProvider, _) {
+                          if (bengkelProvider.isLoading) {
+                            return const SizedBox(
+                              height: 180,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                          
+                          if (bengkelProvider.nearbyBengkels.isEmpty) {
+                            return const SizedBox(
+                              height: 180,
+                              child: Center(
+                                child: Text('Tidak ada bengkel terdekat'),
+                              ),
+                            );
+                          }
+                          
+                          return SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: bengkelProvider.nearbyBengkels
+                                  .take(5)
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final bengkel = bengkelProvider
+                                    .nearbyBengkels[index];
+                                return _BengkelHorizontalCard(
+                                  bengkel: bengkel,
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed(
+                                      AppRouter.booking,
+                                      arguments: {'bengkelId': bengkel.id},
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          );
                         },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppTheme.spacingM,
-                            vertical: AppTheme.spacingM,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                            boxShadow: AppTheme.shadowLight,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.search,
-                                color: AppTheme.textSecondary,
-                              ),
-                              const SizedBox(width: AppTheme.spacingM),
-                              Text(
-                                'Cari bengkel atau layanan...',
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: AppTheme.textHint,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
                     ],
                   ),
                 ),
               ),
               
-              // Quick Actions
+              // Bengkel di Sekitar Section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(AppTheme.spacingL),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Layanan Cepat',
-                        style: AppTheme.h3,
-                      ),
-                      const SizedBox(height: AppTheme.spacingM),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _QuickActionCard(
-                              icon: Icons.build,
-                              label: 'Panggil Montir',
-                              color: AppTheme.primaryColor,
-                              onTap: () {
-                                Navigator.of(context).pushNamed(AppRouter.booking);
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: AppTheme.spacingM),
-                          Expanded(
-                            child: _QuickActionCard(
-                              icon: Icons.shopping_cart,
-                              label: 'Beli Suku Cadang',
-                              color: AppTheme.accentColor,
-                              onTap: () {
-                                Navigator.of(context).pushNamed(AppRouter.shop);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppTheme.spacingM),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _QuickActionCard(
-                              icon: Icons.schedule,
-                              label: 'Pengingat Servis',
-                              color: AppTheme.successColor,
-                              onTap: () {
-                                // TODO: Navigate to reminder screen
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: AppTheme.spacingM),
-                          Expanded(
-                            child: _QuickActionCard(
-                              icon: Icons.history,
-                              label: 'Riwayat',
-                              color: AppTheme.secondaryColor,
-                              onTap: () {
-                                // TODO: Navigate to history screen
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              // Nearby Bengkels
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Bengkel Terdekat',
-                        style: AppTheme.h3,
+                        'Bengkel di Sekitar',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pushNamed(AppRouter.search);
                         },
-                        child: Text(
-                          'Lihat Semua',
-                          style: AppTheme.bodyMedium.copyWith(
-                            color: AppTheme.primaryColor,
+                        child: const Text(
+                          'Lihat Semuanya',
+                          style: TextStyle(
+                            color: Color(0xFFFFA500),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -249,107 +364,159 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 ),
               ),
               
-              // Bengkel List
-              Consumer<BengkelProvider>(
-                builder: (context, bengkelProvider, _) {
-                  if (bengkelProvider.isLoading) {
-                    return const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  
-                  if (bengkelProvider.nearbyBengkels.isEmpty) {
-                    return SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.location_off,
-                              size: 64,
-                              color: AppTheme.textHint,
-                            ),
-                            const SizedBox(height: AppTheme.spacingM),
-                            Text(
-                              'Tidak ada bengkel terdekat',
-                              style: AppTheme.bodyLarge.copyWith(
-                                color: AppTheme.textSecondary,
+              // Map Placeholder
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Map placeholder
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(
+                                Icons.map_outlined,
+                                size: 48,
+                                color: Colors.grey,
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  
-                  return SliverPadding(
-                    padding: const EdgeInsets.all(AppTheme.spacingL),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final bengkel = bengkelProvider.nearbyBengkels[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                            child: BengkelCard(
-                              bengkel: bengkel,
-                              onTap: () {
-                                Navigator.of(context).pushNamed(
-                                  AppRouter.booking,
-                                  arguments: {'bengkelId': bengkel.id},
-                                );
-                              },
+                        // Location info overlay
+                        Positioned(
+                          bottom: 12,
+                          left: 12,
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                        childCount: bengkelProvider.nearbyBengkels.length,
-                      ),
+                            child: const Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on,
+                                  color: Color(0xFFFFA500),
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Lampung',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Terminal Rajabasa, Lampung University',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
+                  ),
+                ),
+              ),
+              
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 80),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppTheme.primaryColor,
-        unselectedItemColor: AppTheme.textSecondary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E3A8A),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Cari',
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Belanja',
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: const Color(0xFF1E3A8A),
+            selectedItemColor: const Color(0xFFFFA500),
+            unselectedItemColor: Colors.white.withOpacity(0.6),
+            showUnselectedLabels: true,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.receipt_long),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: '',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
+class _BengkelHorizontalCard extends StatelessWidget {
+  final dynamic bengkel;
   final VoidCallback onTap;
   
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.color,
+  const _BengkelHorizontalCard({
+    required this.bengkel,
     required this.onTap,
   });
 
@@ -358,36 +525,108 @@ class _QuickActionCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingM),
+        width: 140,
+        margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusM),
-          boxShadow: AppTheme.shadowLight,
-        ),
-                child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.spacingM),
-              decoration: BoxDecoration(
-                color: color.withAlpha((0.1 * 255).round()),
-                borderRadius: BorderRadius.circular(AppTheme.radiusM),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingS),
-            Text(
-              label,
-              style: AppTheme.bodySmall.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              child: bengkel.photoUrl != null
+                  ? Image.network(
+                      bengkel.photoUrl!,
+                      height: 100,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                    )
+                  : _buildPlaceholder(),
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bengkel.name,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: Color(0xFFFFA500),
+                        size: 14,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        bengkel.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '(${bengkel.totalReviews})',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    bengkel.address,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildPlaceholder() {
+    return Container(
+      height: 100,
+      width: double.infinity,
+      color: Colors.grey[200],
+      child: const Icon(
+        Icons.build_circle,
+        size: 40,
+        color: Colors.grey,
       ),
     );
   }
