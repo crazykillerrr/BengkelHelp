@@ -1,3 +1,4 @@
+import 'package:bengkelhelp/presentation/screens/user/search/search_screen.dart';
 import 'package:flutter/material.dart';
 
 // Import all screens
@@ -39,6 +40,7 @@ class AppRoutes {
   // User routes
   static const String userHome = '/user-home';
   static const String searchBengkel = '/search-bengkel';
+  static const String searchScreen = '/search-screen';
   static const String bengkelDetail = '/bengkel-detail';
   static const String callMontir = '/call-montir';
   static const String productList = '/product-list';
@@ -56,6 +58,7 @@ class AppRoutes {
   static const String registerBengkel = '/register-bengkel';
   static const String addProduct = '/add-product';
 
+  static const String booking = '/booking';
   // Admin routes
   static const String adminHome = '/admin-home';
 
@@ -79,6 +82,9 @@ class AppRoutes {
 
       case searchBengkel:
         return MaterialPageRoute(builder: (_) => const SearchBengkelScreen());
+
+      case searchScreen:
+        return MaterialPageRoute(builder: (_) => const SearchScreen());  
 
       case bengkelDetail:
         final bengkelId = settings.arguments as String;

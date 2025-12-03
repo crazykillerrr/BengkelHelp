@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-
 import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/bengkel_provider.dart';
@@ -23,7 +22,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     symbol: 'Rp ',
     decimalDigits: 0,
   );
-  
+
   @override
   void initState() {
     super.initState();
@@ -36,35 +35,33 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       }
     });
   }
-  
+
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
-    
+
     setState(() {
       _selectedIndex = index;
     });
-    
+
     switch (index) {
       case 0:
-        // Home - already here
         break;
       case 1:
-        // Search
+        Navigator.of(context).pushNamed(AppRouter.searchScreen);
         break;
       case 2:
-        // Orders
         break;
       case 3:
         Navigator.of(context).pushNamed(AppRouter.profile);
         break;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -95,7 +92,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                           const Text(
                             'BENGKELHELP',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1,
@@ -104,12 +101,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () {
-                                  // TODO: Notifications
-                                },
+                                onPressed: () {},
                                 icon: const Icon(
                                   Icons.notifications_outlined,
                                   color: Colors.white,
+                                  size: 24,
                                 ),
                               ),
                               IconButton(
@@ -119,137 +115,188 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                 icon: const Icon(
                                   Icons.account_balance_wallet_outlined,
                                   color: Colors.white,
+                                  size: 24,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      
                       const SizedBox(height: 20),
                       
-                      // Info Cards Row
-                      Row(
-                        children: [
-                          // BengkelPay Card
-                          Expanded(
-                            child: Consumer<WalletProvider>(
-                              builder: (context, walletProvider, _) {
-                                return Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
+                      // <CHANGE> Redesigned Info Cards with dividers
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            // BengkelPay Card
+                            Expanded(
+                              child: Consumer<WalletProvider>(
+                                builder: (context, walletProvider, _) {
+                                  return Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'BengkelPay',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: 'Bengkel',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color(0xFFFFA500),
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: 'Pay',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: 8),
                                       Text(
                                         currencyFormat.format(walletProvider.balance),
                                         style: const TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xFF1E3A8A),
+                                          color: Colors.black87,
                                         ),
                                       ),
                                     ],
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Top Up Card
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pushNamed(AppRouter.wallet);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            
+                            // Divider
+                            Container(
+                              height: 50,
+                              width: 1,
+                              color: Colors.grey[300],
+                            ),
+                            
+                            // TopUp Card
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pushNamed(AppRouter.wallet);
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      'Top Up',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'Top',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFFFFA500),
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: 'Up',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.add_circle,
-                                          color: Color(0xFFFFA500),
-                                          size: 20,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          'Isi Saldo',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF1E3A8A),
-                                          ),
-                                        ),
-                                      ],
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFA500),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Coin Card
-                          Container(
-                            width: 80,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
+                            
+                            // Divider
+                            Container(
+                              height: 50,
+                              width: 1,
+                              color: Colors.grey[300],
                             ),
-                            child: const Column(
-                              children: [
-                                Text(
-                                  'Koin',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                            
+                            // Coin Card
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Ko',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFFFFA500),
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: 'in',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  '5000',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E3A8A),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    '5000',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               // Top Bengkel Section
               SliverToBoxAdapter(
                 child: Padding(
@@ -269,12 +316,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(AppRouter.search);
+                              Navigator.of(context).pushNamed(AppRouter.searchScreen);
                             },
                             child: const Text(
                               'Lihat Semua',
                               style: TextStyle(
-                                color: Color(0xFFFFA500),
+                                color: Colors.red,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -293,7 +340,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               ),
                             );
                           }
-                          
+
                           if (bengkelProvider.nearbyBengkels.isEmpty) {
                             return const SizedBox(
                               height: 180,
@@ -302,9 +349,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               ),
                             );
                           }
-                          
+
                           return SizedBox(
-                            height: 200,
+                            height: 220,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: bengkelProvider.nearbyBengkels
@@ -331,7 +378,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ),
                 ),
               ),
-              
+
               // Bengkel di Sekitar Section
               SliverToBoxAdapter(
                 child: Padding(
@@ -349,12 +396,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed(AppRouter.search);
+                          Navigator.of(context).pushNamed(AppRouter.searchScreen);
                         },
                         child: const Text(
-                          'Lihat Semuanya',
+                          'Lihat Selengkapnya',
                           style: TextStyle(
-                            color: Color(0xFFFFA500),
+                            color: Colors.red,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -363,16 +410,20 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ),
                 ),
               ),
-              
-              // Map Placeholder
+
+              // Map Section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Container(
-                    height: 200,
+                    height: 300,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.grey[300]!,
+                        width: 1,
+                      ),
                     ),
                     child: Stack(
                       children: [
@@ -412,7 +463,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               children: [
                                 Icon(
                                   Icons.location_on,
-                                  color: Color(0xFFFFA500),
+                                  color: Color(0xFF00BCD4),
                                   size: 20,
                                 ),
                                 SizedBox(width: 8),
@@ -425,7 +476,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                                          color: Color(0xFF00BCD4),
                                         ),
                                       ),
                                       Text(
@@ -449,9 +500,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ),
                 ),
               ),
-              
+
               const SliverToBoxAdapter(
-                child: SizedBox(height: 80),
+                child: SizedBox(height: 100),
               ),
             ],
           ),
@@ -484,7 +535,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             backgroundColor: const Color(0xFF1E3A8A),
             selectedItemColor: const Color(0xFFFFA500),
             unselectedItemColor: Colors.white.withOpacity(0.6),
-            showUnselectedLabels: true,
+            showUnselectedLabels: false,
             elevation: 0,
             items: const [
               BottomNavigationBarItem(
@@ -492,11 +543,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 label: '',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.search),
+                icon: Icon(Icons.shopping_bag_outlined),
                 label: '',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.receipt_long),
+                icon: Icon(Icons.notifications_active_outlined),
                 label: '',
               ),
               BottomNavigationBarItem(
@@ -514,7 +565,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 class _BengkelHorizontalCard extends StatelessWidget {
   final dynamic bengkel;
   final VoidCallback onTap;
-  
+
   const _BengkelHorizontalCard({
     required this.bengkel,
     required this.onTap,
@@ -525,7 +576,7 @@ class _BengkelHorizontalCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140,
+        width: 150,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -550,66 +601,41 @@ class _BengkelHorizontalCard extends StatelessWidget {
               child: bengkel.photoUrl != null
                   ? Image.network(
                       bengkel.photoUrl!,
-                      height: 100,
+                      height: 110,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _buildPlaceholder(),
                     )
                   : _buildPlaceholder(),
             ),
-            
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    bengkel.name,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      bengkel.name,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Color(0xFFFFA500),
-                        size: 14,
+                    Text(
+                      bengkel.address,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey,
                       ),
-                      const SizedBox(width: 2),
-                      Text(
-                        bengkel.rating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '(${bengkel.totalReviews})',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    bengkel.address,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -617,10 +643,10 @@ class _BengkelHorizontalCard extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildPlaceholder() {
     return Container(
-      height: 100,
+      height: 110,
       width: double.infinity,
       color: Colors.grey[200],
       child: const Icon(
