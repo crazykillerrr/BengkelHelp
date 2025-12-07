@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
 import '../../core/constants/app_constants.dart';
@@ -9,33 +8,36 @@ import '../../core/constants/app_constants.dart';
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
-  
+
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isLoggedIn => _currentUser != null;
-  
+
   AuthProvider() {
-    // HAPUS _checkAuthState() dari sini
-    _initAuth(); // Ganti dengan init yang lebih aman
+    _listenAuthState();
   }
-  
-  Future<void> _initAuth() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
+
+  /// LISTEN FIREBASE AUTH STATE
+  void _listenAuthState() {
+    _auth.authStateChanges().listen((User? user) async {
+      if (user == null) {
+        print('🚪 User signed out');
+        _currentUser = null;
+        notifyListeners();
+      } else {
+        print('👤 User signed in: ${user.email}');
         await _loadUserData(user.uid);
+        notifyListeners();
       }
-    } catch (e) {
-      print('Auth init error: $e');
-      // Jangan throw error, biar app tetap jalan
-    }
+    });
   }
-  
+
+  /// SIGN UP
   Future<bool> signUp({
     required String email,
     required String password,
@@ -46,15 +48,17 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    
+
     try {
-      // Create auth user
+      print('📝 Signing up: $email');
+      
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
-      // Create user document
+
+      print('✅ Firebase Auth user created: ${credential.user!.uid}');
+
       final now = DateTime.now();
       final userModel = UserModel(
         id: credential.user!.uid,
@@ -65,31 +69,34 @@ class AuthProvider with ChangeNotifier {
         createdAt: now,
         updatedAt: now,
       );
-      
+
+      print('💾 Saving user to Firestore...');
       await _firestore
           .collection(AppConstants.usersCollection)
           .doc(credential.user!.uid)
           .set(userModel.toMap());
-      
+
+      print('✅ User saved to Firestore');
       _currentUser = userModel;
-      await _saveLoginState();
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
+      print('❌ FirebaseAuthException: ${e.code} - ${e.message}');
       _errorMessage = _getAuthErrorMessage(e.code);
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-      _isLoading = false;
-      notifyListeners();
-      return false;
+    } catch (e, stackTrace) {
+      print('❌ Unexpected error during sign up: $e');
+      print('Stack trace: $stackTrace');
+      _errorMessage = "Terjadi kesalahan: ${e.toString()}";
     }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
-  
+
+  /// SIGN IN
   Future<bool> signIn({
     required String email,
     required String password,
@@ -97,62 +104,108 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    
+
     try {
+      print('🔐 Signing in: $email');
+      
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
+      print('✅ Firebase Auth successful: ${credential.user!.uid}');
+
+      // Load user data from Firestore
       await _loadUserData(credential.user!.uid);
-      await _saveLoginState();
-      
+
+      if (_currentUser == null) {
+        throw Exception('User data not found in Firestore');
+      }
+
+      print('✅ Sign in complete');
+      print('   User: ${_currentUser!.name}');
+      print('   Role: ${_currentUser!.role}');
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
+      print('❌ FirebaseAuthException: ${e.code} - ${e.message}');
       _errorMessage = _getAuthErrorMessage(e.code);
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-      _isLoading = false;
-      notifyListeners();
-      return false;
+    } catch (e, stackTrace) {
+      print('❌ Unexpected error during sign in: $e');
+      print('Stack trace: $stackTrace');
+      _errorMessage = "Terjadi kesalahan: ${e.toString()}";
     }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
-  
+
+  /// SIGN OUT
   Future<void> signOut() async {
+    print('🚪 Signing out...');
     await _auth.signOut();
     _currentUser = null;
-    await _clearLoginState();
     notifyListeners();
+    print('✅ Signed out');
   }
   
-  Future<void> _loadUserData(String uid) async {
-    final doc = await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(uid)
-        .get();
+  /// GET CURRENT USER BALANCE (from Firestore)
+  Future<double> getCurrentBalance() async {
+    if (_currentUser == null) return 0.0;
     
-    if (doc.exists) {
-      _currentUser = UserModel.fromMap(doc.data()!, doc.id);
+    try {
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(_currentUser!.id)
+          .get();
+      
+      if (doc.exists) {
+        return (doc.data()?['walletBalance'] ?? 0).toDouble();
+      }
+      return 0.0;
+    } catch (e) {
+      print('❌ Error getting balance: $e');
+      return 0.0;
     }
   }
-  
-  Future<void> _saveLoginState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(AppConstants.keyIsLoggedIn, true);
-    await prefs.setString(AppConstants.keyUserId, _currentUser!.id);
-    await prefs.setString(AppConstants.keyUserRole, _currentUser!.role);
+
+  /// LOAD USER DATA FROM FIRESTORE
+  Future<void> _loadUserData(String uid) async {
+    try {
+      print('📖 Loading user data from Firestore: $uid');
+      
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get();
+
+      if (!doc.exists) {
+        print('❌ User document not found in Firestore');
+        throw Exception('User document not found in Firestore');
+      }
+
+      print('📄 Document exists, parsing data...');
+      final data = doc.data();
+      print('   Raw Firestore data: $data');
+
+      _currentUser = UserModel.fromMap(data!, doc.id);
+      
+      print('✅ User loaded successfully');
+      print('   ID: ${_currentUser!.id}');
+      print('   Email: ${_currentUser!.email}');
+      print('   Name: ${_currentUser!.name}');
+      print('   Role: ${_currentUser!.role}');
+    } catch (e, stackTrace) {
+      print('❌ Error loading user data: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
-  
-  Future<void> _clearLoginState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
-  
+
+  /// UPDATE PROFILE
   Future<bool> updateProfile({
     String? name,
     String? phone,
@@ -162,32 +215,39 @@ class AuthProvider with ChangeNotifier {
     String? photoUrl,
   }) async {
     if (_currentUser == null) return false;
-    
+
     try {
-      final updates = <String, dynamic>{
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      };
+      print('✏️  Updating profile for: ${_currentUser!.id}');
       
+      final updates = <String, dynamic>{
+        'updatedAt': Timestamp.now(),
+      };
+
       if (name != null) updates['name'] = name;
       if (phone != null) updates['phone'] = phone;
       if (address != null) updates['address'] = address;
       if (latitude != null) updates['latitude'] = latitude;
       if (longitude != null) updates['longitude'] = longitude;
       if (photoUrl != null) updates['photoUrl'] = photoUrl;
-      
+
       await _firestore
           .collection(AppConstants.usersCollection)
           .doc(_currentUser!.id)
           .update(updates);
-      
+
       await _loadUserData(_currentUser!.id);
       notifyListeners();
+      
+      print('✅ Profile updated successfully');
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Error updating profile: $e');
+      print('Stack trace: $stackTrace');
       return false;
     }
   }
-  
+
+  /// AUTH ERROR MESSAGE HANDLER
   String _getAuthErrorMessage(String code) {
     switch (code) {
       case 'email-already-in-use':
@@ -200,8 +260,14 @@ class AuthProvider with ChangeNotifier {
         return 'Email tidak terdaftar.';
       case 'wrong-password':
         return 'Password salah.';
+      case 'invalid-credential':
+        return 'Email atau password salah.';
+      case 'user-disabled':
+        return 'Akun telah dinonaktifkan.';
+      case 'too-many-requests':
+        return 'Terlalu banyak percobaan. Coba lagi nanti.';
       default:
-        return 'Terjadi kesalahan. Silakan coba lagi.';
+        return 'Terjadi kesalahan: $code';
     }
   }
 }

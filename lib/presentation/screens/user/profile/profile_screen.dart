@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
+import '../../../../data/providers/wallet_provider.dart';
 import '../../../navigation/app_router.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -11,235 +11,182 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
-    
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryColor,
-        title: const Text('Profil'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
             // Header
-            Container(
-              padding: const EdgeInsets.all(AppTheme.spacingXL),
-              decoration: const BoxDecoration(
-                color: AppTheme.primaryColor,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(AppTheme.radiusXL),
-                  bottomRight: Radius.circular(AppTheme.radiusXL),
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E3A8A),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Profil Saya',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white,
+                      child: user?.photoUrl != null
+                          ? ClipOval(
+                              child: Image.network(
+                                user!.photoUrl!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Color(0xFF1E3A8A),
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      user?.name ?? 'User',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user?.email ?? '',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: user?.photoUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              user!.photoUrl!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : const Icon(
-                            Icons.person,
-                            size: 50,
-                            color: AppTheme.primaryColor,
-                          ),
-                  ),
-                  const SizedBox(height: AppTheme.spacingM),
-                  Text(
-                    user?.name ?? 'User',
-                    style: AppTheme.h2.copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(height: AppTheme.spacingXS),
-                  Text(
-                    user?.email ?? '',
-                    style: AppTheme.bodyMedium.copyWith(
-                      color: Colors.white.withAlpha((0.9 * 255).round()),
-                    ),
-                  ),
-                ],
-              ),
             ),
-            
-            const SizedBox(height: AppTheme.spacingL),
             
             // Menu Items
-            _MenuSection(
-              title: 'Akun',
-              items: [
-                _MenuItem(
-                  icon: Icons.person_outline,
-                  title: 'Edit Profil',
-                  onTap: () {
-                    // TODO: Navigate to edit profile
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.location_on_outlined,
-                  title: 'Alamat',
-                  onTap: () {
-                    // TODO: Navigate to address
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.payment,
-                  title: 'BengkelPay',
-                  onTap: () {
-                    Navigator.of(context).pushNamed(AppRouter.wallet);
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: AppTheme.spacingM),
-            
-            _MenuSection(
-              title: 'Aktivitas',
-              items: [
-                _MenuItem(
-                  icon: Icons.receipt_long,
-                  title: 'Riwayat Pesanan',
-                  onTap: () {
-                    // TODO: Navigate to order history
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.schedule,
-                  title: 'Pengingat Servis',
-                  onTap: () {
-                    // TODO: Navigate to reminders
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.favorite_outline,
-                  title: 'Favorit',
-                  onTap: () {
-                    // TODO: Navigate to favorites
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: AppTheme.spacingM),
-            
-            _MenuSection(
-              title: 'Lainnya',
-              items: [
-                _MenuItem(
-                  icon: Icons.help_outline,
-                  title: 'Bantuan',
-                  onTap: () {
-                    // TODO: Navigate to help
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.info_outline,
-                  title: 'Tentang Aplikasi',
-                  onTap: () {
-                    // TODO: Show about dialog
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.logout,
-                  title: 'Keluar',
-                  textColor: AppTheme.errorColor,
-                  onTap: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Konfirmasi'),
-                        content: const Text('Apakah Anda yakin ingin keluar?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Batal'),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _MenuItem(
+                      icon: Icons.person_outline,
+                      title: 'Edit Profil',
+                      onTap: () {
+                        // TODO: Navigate to edit profile
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.location_on_outlined,
+                      title: 'Alamat Saya',
+                      onTap: () {
+                        // TODO: Navigate to address
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'BengkelPay',
+                      onTap: () {
+                        Navigator.of(context).pushNamed(AppRouter.walletScreen);
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'Riwayat Transaksi',
+                      onTap: () {
+                        // TODO: Navigate to transaction history
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.favorite_outline,
+                      title: 'Bengkel Favorit',
+                      onTap: () {
+                        // TODO: Navigate to favorites
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.help_outline,
+                      title: 'Bantuan',
+                      onTap: () {
+                        // TODO: Navigate to help
+                      },
+                    ),
+                    _MenuItem(
+                      icon: Icons.info_outline,
+                      title: 'Tentang Aplikasi',
+                      onTap: () {
+                        // TODO: Show about dialog
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _MenuItem(
+                      icon: Icons.logout,
+                      title: 'Keluar',
+                      textColor: Colors.red,
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Konfirmasi'),
+                            content: const Text('Apakah Anda yakin ingin keluar?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Batal'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Keluar'),
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('Keluar'),
-                          ),
-                        ],
-                      ),
-                    );
-                    
-                    if (confirm == true) {
-                      await authProvider.signOut();
-                      if (context.mounted) {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          AppRouter.signIn,
-                          (route) => false,
                         );
-                      }
-                    }
-                  },
+                        
+                        if (confirm == true && context.mounted) {
+                          // Clear wallet data before logout
+                          final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+                          walletProvider.clearData();
+                          
+                          await authProvider.signOut();
+                          if (context.mounted) {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRouter.signIn,
+                              (route) => false,
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             
-            const SizedBox(height: AppTheme.spacingXL),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 100),
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _MenuSection extends StatelessWidget {
-  final String title;
-  final List<_MenuItem> items;
-  
-  const _MenuSection({
-    required this.title,
-    required this.items,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
-          child: Text(
-            title,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        const SizedBox(height: AppTheme.spacingS),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radiusM),
-            boxShadow: AppTheme.shadowLight,
-          ),
-          child: Column(
-            children: items.map((item) {
-              final isLast = item == items.last;
-              return Column(
-                children: [
-                  item,
-                  if (!isLast)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
-                      child: Divider(height: 1),
-                    ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -259,16 +206,35 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: textColor ?? AppTheme.textPrimary),
-      title: Text(
-        title,
-        style: AppTheme.bodyMedium.copyWith(
-          color: textColor ?? AppTheme.textPrimary,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey[300]!,
+          width: 1,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-      onTap: onTap,
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: textColor ?? const Color(0xFF1E3A8A),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: textColor ?? Colors.black87,
+          ),
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: Colors.grey[400],
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }
