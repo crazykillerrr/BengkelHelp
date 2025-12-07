@@ -5,7 +5,7 @@ class UserModel {
   final String email;
   final String name;
   final String phone;
-  final String role; // 'user', 'seller', 'admin'
+  final String role;
   final String? photoUrl;
   final String? address;
   final double? latitude;
@@ -31,22 +31,85 @@ class UserModel {
     this.isActive = true,
   });
   
+  /// SAFE PARSING FROM FIRESTORE
   factory UserModel.fromMap(Map<String, dynamic> map, String id) {
-    return UserModel(
-      id: id,
-      email: map['email'] ?? '',
-      name: map['name'] ?? '',
-      phone: map['phone'] ?? '',
-      role: map['role'] ?? 'user',
-      photoUrl: map['photoUrl'],
-      address: map['address'],
-      latitude: map['latitude']?.toDouble(),
-      longitude: map['longitude']?.toDouble(),
-      walletBalance: (map['walletBalance'] ?? 0).toDouble(),
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: (map['updatedAt'] as Timestamp).toDate(),
-      isActive: map['isActive'] ?? true,
-    );
+    print('📄 Parsing UserModel from Firestore...');
+    print('   Raw data: $map');
+    
+    try {
+      // Safe timestamp parsing
+      DateTime createdAt = _parseTimestamp(map['createdAt'], 'createdAt');
+      DateTime updatedAt = _parseTimestamp(map['updatedAt'], 'updatedAt');
+      
+      final model = UserModel(
+        id: id,
+        email: map['email']?.toString() ?? '',
+        name: map['name']?.toString() ?? '',
+        phone: map['phone']?.toString() ?? '',
+        role: map['role']?.toString() ?? 'user',
+        photoUrl: map['photoUrl']?.toString(),
+        address: map['address']?.toString(),
+        latitude: _parseDouble(map['latitude']),
+        longitude: _parseDouble(map['longitude']),
+        walletBalance: _parseDouble(map['walletBalance']) ?? 0.0,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        isActive: map['isActive'] == true,
+      );
+      
+      print('✅ UserModel parsed successfully');
+      print('   ID: ${model.id}');
+      print('   Email: ${model.email}');
+      print('   Name: ${model.name}');
+      print('   Role: ${model.role}');
+      
+      return model;
+    } catch (e, stackTrace) {
+      print('❌ Error parsing UserModel: $e');
+      print('   Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+  
+  /// Helper: Parse Timestamp safely
+  static DateTime _parseTimestamp(dynamic value, String fieldName) {
+    if (value == null) {
+      print('⚠️  $fieldName is null, using current time');
+      return DateTime.now();
+    }
+    
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    
+    if (value is DateTime) {
+      return value;
+    }
+    
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        print('⚠️  Failed to parse $fieldName as DateTime string, using current time');
+        return DateTime.now();
+      }
+    }
+    
+    print('⚠️  Unknown type for $fieldName: ${value.runtimeType}, using current time');
+    return DateTime.now();
+  }
+  
+  /// Helper: Parse double safely
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
   
   Map<String, dynamic> toMap() {

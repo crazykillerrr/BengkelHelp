@@ -34,7 +34,7 @@ class AppRouter {
   static const String orderList = AppRoutes.orderList;
   
   // User - Wallet
-  static const String wallet = AppRoutes.wallet;
+  static const String walletScreen= AppRoutes.walletScreen;
   //static const String bengkelPay = AppRoutes.bengkelPay;
   static const String topUp = AppRoutes.topUp;
   

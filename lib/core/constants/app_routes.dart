@@ -18,6 +18,7 @@ import 'package:bengkelhelp/presentation/screens/user/shop/cart_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/order/order_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/wallet/bengkel_pay_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/wallet/top_up_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/wallet/wallet_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/reminder/reminder_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/profile/profile_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/profile/edit_profile_screen.dart';
@@ -61,6 +62,8 @@ class AppRoutes {
   static const String booking = '/booking';
   // Admin routes
   static const String adminHome = '/admin-home';
+
+  static const String walletScreen = '/wallet-screen';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -112,6 +115,9 @@ class AppRoutes {
 
       case wallet:
         return MaterialPageRoute(builder: (_) => const BengkelPayScreen());
+
+       case walletScreen:
+        return MaterialPageRoute(builder: (_) => const WalletScreen()); 
 
       case topUp:
         return MaterialPageRoute(builder: (_) => const TopUpScreen());

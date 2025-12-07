@@ -110,7 +110,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  Navigator.of(context).pushNamed(AppRouter.wallet);
+                                  Navigator.of(context).pushNamed(AppRouter.walletScreen);
                                 },
                                 icon: const Icon(
                                   Icons.account_balance_wallet_outlined,
@@ -198,7 +198,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pushNamed(AppRouter.wallet);
+                                  Navigator.of(context).pushNamed(AppRouter.walletScreen);
                                 },
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
