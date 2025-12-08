@@ -14,6 +14,7 @@ import 'package:bengkelhelp/presentation/screens/user/search/bengkel_detail_scre
 import 'package:bengkelhelp/presentation/screens/user/booking/call_montir_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/product_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/product_detail_screen.dart';
+import 'package:bengkelhelp/data/models/product_model.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/cart_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/order/order_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/wallet/bengkel_pay_screen.dart';
@@ -84,7 +85,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SearchBengkelScreen());
 
       case searchScreen:
-        return MaterialPageRoute(builder: (_) => const SearchScreen());  
+        return MaterialPageRoute(builder: (_) => const SearchScreen());
 
       case bengkelDetail:
         final bengkelId = settings.arguments as String;
@@ -99,9 +100,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ProductListScreen());
 
       case productDetail:
-        final productId = settings.arguments as String;
+        final product = settings.arguments as ProductModel;
         return MaterialPageRoute(
-          builder: (_) => ProductDetailScreen(productId: productId),
+          builder: (_) => ProductDetailScreen(product: product),
         );
 
       case cart:

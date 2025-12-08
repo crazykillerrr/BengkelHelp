@@ -1,274 +1,314 @@
+import 'package:bengkelhelp/presentation/navigation/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
-import '../../../navigation/app_router.dart';
+import 'edit_profile_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _selectedIndex = 3;
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, AppRouter.userHome);
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, AppRouter.searchScreen);
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, AppRouter.reminderList);
+        break;
+      case 3:
+        break;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
-    
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppTheme.primaryColor,
-        title: const Text('Profil'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(AppTheme.spacingXL),
-              decoration: const BoxDecoration(
-                color: AppTheme.primaryColor,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(AppTheme.radiusXL),
-                  bottomRight: Radius.circular(AppTheme.radiusXL),
-                ),
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: user?.photoUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              user!.photoUrl!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : const Icon(
-                            Icons.person,
-                            size: 50,
-                            color: AppTheme.primaryColor,
-                          ),
-                  ),
-                  const SizedBox(height: AppTheme.spacingM),
-                  Text(
-                    user?.name ?? 'User',
-                    style: AppTheme.h2.copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(height: AppTheme.spacingXS),
-                  Text(
-                    user?.email ?? '',
-                    style: AppTheme.bodyMedium.copyWith(
-                      color: Colors.white.withAlpha((0.9 * 255).round()),
-                    ),
-                  ),
-                ],
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // ================= HEADER BIRU =================
+          Container(
+            height: 260,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1A237E),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
             ),
-            
-            const SizedBox(height: AppTheme.spacingL),
-            
-            // Menu Items
-            _MenuSection(
-              title: 'Akun',
-              items: [
-                _MenuItem(
-                  icon: Icons.person_outline,
-                  title: 'Edit Profil',
-                  onTap: () {
-                    // TODO: Navigate to edit profile
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.location_on_outlined,
-                  title: 'Alamat',
-                  onTap: () {
-                    // TODO: Navigate to address
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.payment,
-                  title: 'BengkelPay',
-                  onTap: () {
-                    Navigator.of(context).pushNamed(AppRouter.wallet);
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: AppTheme.spacingM),
-            
-            _MenuSection(
-              title: 'Aktivitas',
-              items: [
-                _MenuItem(
-                  icon: Icons.receipt_long,
-                  title: 'Riwayat Pesanan',
-                  onTap: () {
-                    // TODO: Navigate to order history
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.schedule,
-                  title: 'Pengingat Servis',
-                  onTap: () {
-                    // TODO: Navigate to reminders
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.favorite_outline,
-                  title: 'Favorit',
-                  onTap: () {
-                    // TODO: Navigate to favorites
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: AppTheme.spacingM),
-            
-            _MenuSection(
-              title: 'Lainnya',
-              items: [
-                _MenuItem(
-                  icon: Icons.help_outline,
-                  title: 'Bantuan',
-                  onTap: () {
-                    // TODO: Navigate to help
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.info_outline,
-                  title: 'Tentang Aplikasi',
-                  onTap: () {
-                    // TODO: Show about dialog
-                  },
-                ),
-                _MenuItem(
-                  icon: Icons.logout,
-                  title: 'Keluar',
-                  textColor: AppTheme.errorColor,
-                  onTap: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Konfirmasi'),
-                        content: const Text('Apakah Anda yakin ingin keluar?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Batal'),
+          ),
+
+          // ================= CONTENT =================
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+
+                // ================= AVATAR =================
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 58,
+                        backgroundColor: Colors.white,
+                        child: ClipOval(
+                          child: Image.network(
+                            user?.photoUrl ??
+                                "https://i.imgur.com/BoN9kdC.png",
+                            width: 116,
+                            height: 116,
+                            fit: BoxFit.cover,
                           ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            child: const Text('Keluar'),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EditProfileScreen(),
+                              ),
+                            );
+                          },
+                          child: CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.white,
+                            child: const Icon(Icons.edit, size: 18),
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // ================= PROFILE CARD =================
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 25, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: AppTheme.shadowLight,
+                  ),
+                  child: Column(
+                    children: [
+                      // Username
+                      Text(
+                        user?.name ?? "User",
+                        style: AppTheme.h2
+                            .copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      // Badge Role
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A237E),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          "User",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Wallet Info
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _walletItem("BengkelPay", "Rp1.000.000"),
+                          _walletItem("Koin", "5000"),
                         ],
                       ),
-                    );
-                    
-                    if (confirm == true) {
-                      await authProvider.signOut();
-                      if (context.mounted) {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          AppRouter.signIn,
-                          (route) => false,
-                        );
-                      }
-                    }
-                  },
+                    ],
+                  ),
                 ),
+
+                const SizedBox(height: 25),
+
+                // ================= PESANAN SAYA =================
+                _orderSection(),
+
+                const SizedBox(height: 25),
+
+                // ================= MENU LIST =================
+                _menuItem("Alamat Saya", Icons.language),
+                _menuItem("Buka Bengkel", Icons.build),
+                _menuItem("Riwayat Pesanan", Icons.receipt_long),
+                _menuItem("Ganti PIN Bengkelpay", Icons.visibility_off),
+
+                const SizedBox(height: 10),
+
+                _menuItem("Customer Service", Icons.headset_mic),
+                _menuItem("Tentang Aplikasi", Icons.info_outline),
+                _menuItem("Keluar", Icons.logout, isLogout: true),
+
+                const SizedBox(height: 40),
               ],
             ),
-            
-            const SizedBox(height: AppTheme.spacingXL),
+          ),
+        ],
+      ),
+
+      // ================= NAVBAR SEPERTI HOME =================
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E3A8A),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: const Color(0xFF1E3A8A),
+            selectedItemColor: const Color(0xFFFFA500),
+            unselectedItemColor: Colors.white.withOpacity(0.6),
+            showUnselectedLabels: false,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.notifications_active_outlined), label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class _MenuSection extends StatelessWidget {
-  final String title;
-  final List<_MenuItem> items;
-  
-  const _MenuSection({
-    required this.title,
-    required this.items,
-  });
+  // ========== SMALL WIDGETS ==========
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _walletItem(String title, String amount) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
-          child: Text(
-            title,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        Text(
+          title,
+          style: AppTheme.bodyMedium
+              .copyWith(color: Colors.orange, fontSize: 15),
         ),
-        const SizedBox(height: AppTheme.spacingS),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radiusM),
-            boxShadow: AppTheme.shadowLight,
-          ),
-          child: Column(
-            children: items.map((item) {
-              final isLast = item == items.last;
-              return Column(
-                children: [
-                  item,
-                  if (!isLast)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
-                      child: Divider(height: 1),
-                    ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
+        const SizedBox(height: 5),
+        Text(amount,
+            style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
       ],
     );
   }
-}
 
-class _MenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Color? textColor;
-  final VoidCallback onTap;
-  
-  const _MenuItem({
-    required this.icon,
-    required this.title,
-    this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: textColor ?? AppTheme.textPrimary),
-      title: Text(
-        title,
-        style: AppTheme.bodyMedium.copyWith(
-          color: textColor ?? AppTheme.textPrimary,
-        ),
+  Widget _orderSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: AppTheme.shadowLight,
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Pesanan Saya",
+              style: AppTheme.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600)),
+          const SizedBox(height: 20),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _orderItem(Icons.inventory_2, "Dikemas", "2"),
+              _orderItem(Icons.local_shipping, "Dikirim", "4"),
+              _orderItem(Icons.star_border, "Penilaian", "3"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _orderItem(IconData icon, String label, String count) {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            Icon(icon, size: 45),
+            Positioned(
+              right: -4,
+              top: -4,
+              child: CircleAvatar(
+                backgroundColor: Colors.blue,
+                radius: 10,
+                child: Text(
+                  count,
+                  style: const TextStyle(fontSize: 10, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(label),
+      ],
+    );
+  }
+
+  Widget _menuItem(String title, IconData icon, {bool isLogout = false}) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(icon, color: isLogout ? Colors.red : Colors.black),
+          title: Text(title,
+              style: TextStyle(
+                  color: isLogout ? Colors.red : Colors.black,
+                  fontSize: 16)),
+          trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        ),
+        const Divider(height: 1),
+      ],
     );
   }
 }
