@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/bengkel_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
 import '../../../navigation/app_router.dart';
@@ -18,19 +17,19 @@ class _SearchScreenState extends State<SearchScreen> {
   List<dynamic> _searchResults = [];
   bool _isSearching = false;
   int _cartCount = 11;
-  
+
   final currencyFormat = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp ',
     decimalDigits: 0,
   );
-  
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _performSearch(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -39,29 +38,33 @@ class _SearchScreenState extends State<SearchScreen> {
       });
       return;
     }
-    
+
     setState(() {
       _isSearching = true;
     });
-    
-    final bengkelProvider = Provider.of<BengkelProvider>(context, listen: false);
+
+    final bengkelProvider =
+        Provider.of<BengkelProvider>(context, listen: false);
     final results = await bengkelProvider.searchBengkels(query);
-    
+
     setState(() {
       _searchResults = results;
       _isSearching = false;
     });
   }
 
-  
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // =========================================================
+      //                         BODY
+      // =========================================================
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
+            // ----------------------- HEADER SEARCH -----------------------
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -97,7 +100,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                 color: Colors.grey,
                                 fontSize: 14,
                               ),
-                              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                              prefixIcon:
+                                  const Icon(Icons.search, color: Colors.grey),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -114,7 +118,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                   width: 2,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 12),
                             ),
                             onChanged: (value) {
                               setState(() {});
@@ -124,7 +129,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         const SizedBox(width: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
@@ -142,9 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         Stack(
                           children: [
                             IconButton(
-                              onPressed: () {
-                                // TODO: Navigate to cart
-                              },
+                              onPressed: () {},
                               icon: const Icon(
                                 Icons.shopping_cart_outlined,
                                 color: Colors.white,
@@ -181,6 +185,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
+
+                    // ------------------------ BENGKELPAY ------------------------
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -189,7 +195,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       child: Row(
                         children: [
-                          // BengkelPay
                           Expanded(
                             child: Consumer<WalletProvider>(
                               builder: (context, walletProvider, _) {
@@ -220,7 +225,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      currencyFormat.format(walletProvider.balance),
+                                      currencyFormat.format(
+                                          walletProvider.balance),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -232,42 +238,19 @@ class _SearchScreenState extends State<SearchScreen> {
                               },
                             ),
                           ),
-                          // Divider
                           Container(
                             width: 1,
                             height: 50,
                             color: Colors.grey[300],
                           ),
                           const SizedBox(width: 16),
-                          // Koin
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RichText(
-                                  text: const TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'K',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFFFFA500),
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: 'oin',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF1E3A8A),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
+                              children: const [
+                              
+                                SizedBox(height: 6),
+                                Text(
                                   '5000',
                                   style: TextStyle(
                                     fontSize: 14,
@@ -285,10 +268,12 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            
+
+            // ---------------------------- PRODUK ----------------------------
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -301,9 +286,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        // TODO: Open filter
-                      },
+                      onPressed: () {},
                       icon: const Icon(
                         Icons.filter_list,
                         color: Color(0xFF1E3A8A),
@@ -314,27 +297,22 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            
+
             if (_isSearching)
-              SliverToBoxAdapter(
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(40),
-                  child: const CircularProgressIndicator(),
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(child: CircularProgressIndicator()),
                 ),
               )
             else if (_searchResults.isEmpty)
               SliverToBoxAdapter(
-                child: Container(
-                  alignment: Alignment.center,
+                child: Padding(
                   padding: const EdgeInsets.all(40),
                   child: Column(
                     children: [
-                      const Icon(
-                        Icons.search,
-                        size: 64,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.search,
+                          size: 64, color: Colors.grey),
                       const SizedBox(height: 16),
                       Text(
                         _searchController.text.isEmpty
@@ -351,9 +329,11 @@ class _SearchScreenState extends State<SearchScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 8),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.7,
                     mainAxisSpacing: 12,
@@ -371,11 +351,76 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
               ),
-            
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          ],
+        ),
+      ),
+
+
+      // =========================================================
+      //                BOTTOM NAVBAR (FIX SAMA HOMESCREEN)
+      // =========================================================
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E3A8A),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: BottomNavigationBar(
+            currentIndex: 1, // Search tab
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: const Color(0xFF1E3A8A),
+            selectedItemColor: const Color(0xFFFFA500),
+            unselectedItemColor: Colors.white70,
+            showUnselectedLabels: false,
+            elevation: 0,
+
+            onTap: (index) {
+              if (index == 0) {
+                Navigator.pushNamed(context, AppRouter.userHome);
+              } else if (index == 1) {
+                // Tetap di halaman search
+              } else if (index == 2) {
+                Navigator.pushNamed(context, AppRouter.reminderList);
+              } else if (index == 3) {
+                Navigator.pushNamed(context, AppRouter.profile);
+              }
+            },
+
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_bag_outlined),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.notifications_active_outlined),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: '',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -385,7 +430,7 @@ class _SearchScreenState extends State<SearchScreen> {
 class _ProductCard extends StatelessWidget {
   final dynamic product;
   final NumberFormat currencyFormat;
-  
+
   const _ProductCard({
     required this.product,
     required this.currencyFormat,
@@ -394,9 +439,7 @@ class _ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to product detail
-      },
+      onTap: () {},
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -412,24 +455,20 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: product['photoUrl'] != null
                   ? Image.network(
-                      product['photoUrl']!,
+                      product['photoUrl'],
                       height: 120,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                      errorBuilder: (_, __, ___) =>
+                          _buildPlaceholder(),
                     )
                   : _buildPlaceholder(),
             ),
-            
-            // Product Details
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -457,18 +496,13 @@ class _ProductCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.star,
-                        color: Color(0xFFFFA500),
-                        size: 14,
-                      ),
+                      const Icon(Icons.star,
+                          color: Color(0xFFFFA500), size: 14),
                       const SizedBox(width: 4),
                       Text(
                         (product['rating'] ?? 0).toStringAsFixed(1),
                         style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black87,
-                        ),
+                            fontSize: 12, color: Colors.black87),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -494,11 +528,8 @@ class _ProductCard extends StatelessWidget {
       height: 120,
       width: double.infinity,
       color: Colors.grey[200],
-      child: const Icon(
-        Icons.image_not_supported,
-        size: 40,
-        color: Colors.grey,
-      ),
+      child: const Icon(Icons.image_not_supported,
+          size: 40, color: Colors.grey),
     );
   }
 }

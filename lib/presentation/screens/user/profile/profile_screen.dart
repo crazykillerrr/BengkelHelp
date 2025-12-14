@@ -1,3 +1,4 @@
+import 'package:bengkelhelp/core/constants/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/providers/auth_provider.dart';
@@ -103,7 +104,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.account_balance_wallet_outlined,
                       title: 'BengkelPay',
                       onTap: () {
-                        Navigator.of(context).pushNamed(AppRouter.walletScreen);
+                        Navigator.of(context).pushNamed(AppRoutes.walletScreen);
                       },
                     ),
                     _MenuItem(
@@ -169,7 +170,7 @@ class ProfileScreen extends StatelessWidget {
                           await authProvider.signOut();
                           if (context.mounted) {
                             Navigator.of(context).pushNamedAndRemoveUntil(
-                              AppRouter.signIn,
+                              AppRoutes.login,
                               (route) => false,
                             );
                           }

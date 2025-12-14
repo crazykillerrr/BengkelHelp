@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/bengkel_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
@@ -50,6 +49,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         Navigator.of(context).pushNamed(AppRouter.searchScreen);
         break;
       case 2:
+        Navigator.of(context).pushNamed(AppRouter.reminderList);
         break;
       case 3:
         Navigator.of(context).pushNamed(AppRouter.profile);
@@ -113,9 +113,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                                   Navigator.of(context).pushNamed(AppRouter.walletScreen);
                                 },
                                 icon: const Icon(
-                                  Icons.account_balance_wallet_outlined,
-                                  color: Colors.white,
-                                  size: 24,
+                                    Icons.chat_bubble_outline,
+                                    color: Colors.white,
+                                    size: 24,
                                 ),
                               ),
                             ],

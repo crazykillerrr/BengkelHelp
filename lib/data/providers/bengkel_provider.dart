@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../models/bengkel_model.dart';
-// Note: product and order models not required here currently
 import '../../core/constants/app_constants.dart';
 
 class BengkelProvider with ChangeNotifier {
@@ -11,11 +10,16 @@ class BengkelProvider with ChangeNotifier {
 
   List<BengkelModel> _nearbyBengkels = [];
   List<BengkelModel> _allBengkels = [];
+
+  BengkelModel? _selectedBengkel;
+
   bool _isLoading = false;
   String? _errorMessage;
 
   List<BengkelModel> get nearbyBengkels => _nearbyBengkels;
   List<BengkelModel> get allBengkels => _allBengkels;
+  BengkelModel? get selectedBengkel => _selectedBengkel;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -25,10 +29,8 @@ class BengkelProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Get current location
       Position? position = await _getCurrentLocation();
 
-      // Load all bengkels
       final querySnapshot = await _firestore
           .collection(AppConstants.bengkelsCollection)
           .where('isActive', isEqualTo: true)
@@ -39,11 +41,8 @@ class BengkelProvider with ChangeNotifier {
           .map((doc) => BengkelModel.fromMap(doc.data(), doc.id))
           .toList();
 
-      // Calculate distances and sort
       if (position != null) {
-        _nearbyBengkels = _allBengkels.map((bengkel) {
-          return bengkel;
-        }).toList();
+        _nearbyBengkels = [..._allBengkels];
 
         _nearbyBengkels.sort((a, b) {
           final distA = Geolocator.distanceBetween(
@@ -61,7 +60,6 @@ class BengkelProvider with ChangeNotifier {
           return distA.compareTo(distB);
         });
 
-        // Take only nearby bengkels (within radius)
         _nearbyBengkels = _nearbyBengkels.take(10).toList();
       } else {
         _nearbyBengkels = _allBengkels.take(10).toList();
@@ -78,10 +76,11 @@ class BengkelProvider with ChangeNotifier {
 
   Future<Position?> _getCurrentLocation() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return null;
+      bool enabled = await Geolocator.isLocationServiceEnabled();
+      if (!enabled) return null;
 
       LocationPermission permission = await Geolocator.checkPermission();
+
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) return null;
@@ -98,11 +97,11 @@ class BengkelProvider with ChangeNotifier {
   Future<List<BengkelModel>> searchBengkels(String query) async {
     if (query.isEmpty) return _allBengkels;
 
-    final lowercaseQuery = query.toLowerCase();
+    final q = query.toLowerCase();
     return _allBengkels.where((bengkel) {
-      return bengkel.name.toLowerCase().contains(lowercaseQuery) ||
-          bengkel.description.toLowerCase().contains(lowercaseQuery) ||
-          bengkel.services.any((s) => s.toLowerCase().contains(lowercaseQuery));
+      return bengkel.name.toLowerCase().contains(q) ||
+          bengkel.description.toLowerCase().contains(q) ||
+          bengkel.services.any((s) => s.toLowerCase().contains(q));
     }).toList();
   }
 
@@ -121,5 +120,32 @@ class BengkelProvider with ChangeNotifier {
       return null;
     }
   }
-}
 
+  /// FIX: fetch bengkel by owner
+  Future<void> fetchBengkelByOwner(String ownerId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final snapshot = await _firestore
+          .collection(AppConstants.bengkelsCollection)
+          .where('ownerId', isEqualTo: ownerId)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        _selectedBengkel =
+            BengkelModel.fromMap(snapshot.docs.first.data(), snapshot.docs.first.id);
+      } else {
+        _selectedBengkel = null;
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+    }
+  }
+}
