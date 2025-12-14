@@ -44,4 +44,9 @@ class AppRouter {
   // User - Profile
   static const String profile = AppRoutes.profile;
   static const String editProfile = AppRoutes.editProfile;
+
+  // seller
+  static const String addProduct= AppRoutes.addProduct;
+  static const String registerBengkel = AppRoutes.registerBengkel ;
+
 }

@@ -9,11 +9,12 @@ class ProductModel {
   final String category;
   final double price;
   final int stock;
-  final List<String> imageUrls;
-  final bool isVerified;
-  final bool isActive;
+  final String photoUrl;     // ← DIGANTI, BUKAN imageUrls
+  final String? brand;
+  final String condition;     // Baru / Bekas
+  final String status;        // pending, active, rejected
   final DateTime createdAt;
-  
+
   ProductModel({
     required this.id,
     required this.sellerId,
@@ -23,12 +24,13 @@ class ProductModel {
     required this.category,
     required this.price,
     required this.stock,
-    required this.imageUrls,
-    this.isVerified = false,
-    this.isActive = true,
+    required this.photoUrl,
+    this.brand,
+    required this.condition,
+    required this.status,
     required this.createdAt,
   });
-  
+
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
     return ProductModel(
       id: id,
@@ -39,13 +41,14 @@ class ProductModel {
       category: map['category'] ?? '',
       price: (map['price'] ?? 0).toDouble(),
       stock: map['stock'] ?? 0,
-      imageUrls: List<String>.from(map['imageUrls'] ?? []),
-      isVerified: map['isVerified'] ?? false,
-      isActive: map['isActive'] ?? true,
+      photoUrl: map['photoUrl'] ?? '',
+      brand: map['brand'],
+      condition: map['condition'] ?? 'Baru',
+      status: map['status'] ?? 'pending',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
     );
   }
-  
+
   Map<String, dynamic> toMap() {
     return {
       'sellerId': sellerId,
@@ -55,9 +58,10 @@ class ProductModel {
       'category': category,
       'price': price,
       'stock': stock,
-      'imageUrls': imageUrls,
-      'isVerified': isVerified,
-      'isActive': isActive,
+      'photoUrl': photoUrl,
+      'brand': brand,
+      'condition': condition,
+      'status': status,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

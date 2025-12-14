@@ -169,9 +169,9 @@ class _ShopScreenState extends State<ShopScreen> {
                                 topLeft: Radius.circular(AppTheme.radiusM),
                                 topRight: Radius.circular(AppTheme.radiusM),
                               ),
-                              child: product.imageUrls.isNotEmpty
+                              child: product.photoUrl.isNotEmpty
                                   ? Image.network(
-                                      product.imageUrls.first,
+                                      product.photoUrl,
                                       height: 120,
                                       width: double.infinity,
                                       fit: BoxFit.cover,

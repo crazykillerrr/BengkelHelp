@@ -14,6 +14,7 @@ import 'package:bengkelhelp/presentation/screens/user/search/bengkel_detail_scre
 import 'package:bengkelhelp/presentation/screens/user/booking/call_montir_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/product_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/product_detail_screen.dart';
+import 'package:bengkelhelp/data/models/product_model.dart';
 import 'package:bengkelhelp/presentation/screens/user/shop/cart_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/order/order_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/wallet/bengkel_pay_screen.dart';
@@ -27,6 +28,8 @@ import 'package:bengkelhelp/presentation/screens/user/profile/edit_profile_scree
 import 'package:bengkelhelp/presentation/screens/seller/home/seller_home_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/bengkel/register_bengkel_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/product/add_product_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/product/edit_product_screen.dart';
+
 
 // Admin screens
 import 'package:bengkelhelp/presentation/screens/admin/home/admin_home_screen.dart';
@@ -59,6 +62,9 @@ class AppRoutes {
   static const String registerBengkel = '/register-bengkel';
   static const String addProduct = '/add-product';
 
+  static const String editProduct = '/edit-product';
+
+
   static const String booking = '/booking';
   // Admin routes
   static const String adminHome = '/admin-home';
@@ -87,7 +93,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SearchBengkelScreen());
 
       case searchScreen:
-        return MaterialPageRoute(builder: (_) => const SearchScreen());  
+        return MaterialPageRoute(builder: (_) => const SearchScreen());
 
       case bengkelDetail:
         final bengkelId = settings.arguments as String;
@@ -102,9 +108,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ProductListScreen());
 
       case productDetail:
-        final productId = settings.arguments as String;
+        final product = settings.arguments as ProductModel;
         return MaterialPageRoute(
-          builder: (_) => ProductDetailScreen(productId: productId),
+          builder: (_) => ProductDetailScreen(product: product),
         );
 
       case cart:
@@ -144,6 +150,13 @@ class AppRoutes {
       // Admin routes
       case adminHome:
         return MaterialPageRoute(builder: (_) => const AdminHomeScreen());
+
+      case editProduct:
+      final productId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (_) => EditProductScreen(productId: productId),
+      );
+  
 
       default:
         return MaterialPageRoute(

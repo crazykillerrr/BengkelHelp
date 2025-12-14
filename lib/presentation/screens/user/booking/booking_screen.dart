@@ -102,6 +102,9 @@ class _BookingScreenState extends State<BookingScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     
+
+    
+
     final order = OrderModel(
       id: '',
       userId: authProvider.currentUser!.id,
@@ -111,16 +114,18 @@ class _BookingScreenState extends State<BookingScreen> {
       items: [
         OrderItem(
           productId: _selectedService!,
-          name: _selectedService!,
+          productName: _selectedService!,
+          photoUrl: null,
           price: 0,
           quantity: 1,
         ),
       ],
       totalAmount: 0,
-      status: AppConstants.orderPending,
+      status: OrderStatus.pending,
       paymentMethod: AppConstants.paymentBengkelPay,
       createdAt: DateTime.now(),
     );
+
     
     final success = await orderProvider.createOrder(order);
     
