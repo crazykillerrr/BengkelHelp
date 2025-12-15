@@ -13,15 +13,20 @@ class CartProvider with ChangeNotifier {
       _cartItems.fold(0, (sum, item) => sum + item.totalPrice);
 
   void addToCart(ProductModel product, {int quantity = 1}) {
-    final existingItem = _cartItems.firstWhere(
-      (item) => item.product.id == product.id,
-      orElse: () => CartItem(product: product, quantity: 0),
-    );
+    if (product.stock <= 0) return;
 
-    if (existingItem.quantity > 0) {
-      existingItem.quantity += quantity;
+    final index =
+        _cartItems.indexWhere((item) => item.product.id == product.id);
+
+    if (index != -1) {
+      final newQty = _cartItems[index].quantity + quantity;
+      if (newQty <= product.stock) {
+        _cartItems[index].quantity = newQty;
+      }
     } else {
-      _cartItems.add(CartItem(product: product, quantity: quantity));
+      if (quantity <= product.stock) {
+        _cartItems.add(CartItem(product: product, quantity: quantity));
+      }
     }
     notifyListeners();
   }
@@ -32,11 +37,15 @@ class CartProvider with ChangeNotifier {
   }
 
   void updateQuantity(String productId, int quantity) {
-    final item = _cartItems.firstWhere((item) => item.product.id == productId);
+    final index =
+        _cartItems.indexWhere((item) => item.product.id == productId);
+
+    if (index == -1) return;
+
     if (quantity <= 0) {
       removeFromCart(productId);
-    } else {
-      item.quantity = quantity;
+    } else if (quantity <= _cartItems[index].product.stock) {
+      _cartItems[index].quantity = quantity;
       notifyListeners();
     }
   }
@@ -51,23 +60,10 @@ class CartProvider with ChangeNotifier {
   }
 
   int getQuantity(String productId) {
-    final item = _cartItems.firstWhere(
-      (item) => item.product.id == productId,
-      orElse: () => CartItem(
-          product: ProductModel(
-            id: '',
-            sellerId: '',
-            bengkelId: '',
-            name: '',
-            description: '',
-            category: '',
-            price: 0,
-            stock: 0,
-            photoUrl: '',
-            createdAt: DateTime.now(), condition: '', status: '',
-          ),
-          quantity: 0),
-    );
-    return item.quantity;
+    final item = _cartItems
+        .where((item) => item.product.id == productId)
+        .toList();
+    return item.isEmpty ? 0 : item.first.quantity;
   }
 }
+

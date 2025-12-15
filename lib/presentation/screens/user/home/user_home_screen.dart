@@ -27,7 +27,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      Provider.of<BengkelProvider>(context, listen: false).loadNearbyBengkels();
+     Provider.of<BengkelProvider>(context, listen: false).loadVerifiedBengkels();
       if (authProvider.currentUser != null) {
         Provider.of<WalletProvider>(context, listen: false)
             .loadBalance(authProvider.currentUser!.id);
@@ -68,7 +68,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         child: RefreshIndicator(
           onRefresh: () async {
             await Provider.of<BengkelProvider>(context, listen: false)
-                .loadNearbyBengkels();
+              .loadVerifiedBengkels();
           },
           child: CustomScrollView(
             slivers: [
@@ -341,11 +341,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             );
                           }
 
-                          if (bengkelProvider.nearbyBengkels.isEmpty) {
+                          if (bengkelProvider.verifiedBengkels.isEmpty) {
                             return const SizedBox(
                               height: 180,
                               child: Center(
-                                child: Text('Tidak ada bengkel terdekat'),
+                                child: Text('Tidak ada bengkel tersedia'),
                               ),
                             );
                           }
@@ -354,12 +354,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                             height: 220,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: bengkelProvider.nearbyBengkels
-                                  .take(5)
-                                  .length,
+                              itemCount: bengkelProvider.verifiedBengkels.take(5).length,
                               itemBuilder: (context, index) {
-                                final bengkel = bengkelProvider
-                                    .nearbyBengkels[index];
+                                final bengkel = bengkelProvider.verifiedBengkels[index];
                                 return _BengkelHorizontalCard(
                                   bengkel: bengkel,
                                   onTap: () {

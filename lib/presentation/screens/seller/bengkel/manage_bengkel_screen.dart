@@ -21,12 +21,12 @@ class _ManageBengkelScreenState extends State<ManageBengkelScreen> {
   }
 
   Future<void> _loadBengkel() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final bengkelProvider = Provider.of<BengkelProvider>(context, listen: false);
-    final user = authProvider.currentUser;
-    
-    if (user != null) {
-      await bengkelProvider.fetchBengkelByOwner(user.id);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final bengkelProvider =
+        Provider.of<BengkelProvider>(context, listen: false);
+
+    if (auth.currentUser != null) {
+      await bengkelProvider.fetchBengkelByOwner(auth.currentUser!.id);
     }
   }
 
@@ -44,144 +44,72 @@ class _ManageBengkelScreenState extends State<ManageBengkelScreen> {
           }
 
           final bengkel = provider.selectedBengkel;
-          
+
           if (bengkel == null) {
-            return _buildNoBengkelState();
+            return _buildNoBengkel();
           }
 
-          return _buildBengkelInfo(bengkel);
+          return _buildBengkelDetail(bengkel);
         },
       ),
     );
   }
 
-  Widget _buildNoBengkelState() {
+  // ================= NO BENGKEL =================
+  Widget _buildNoBengkel() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.store_mall_directory_outlined,
-              size: 120,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Belum Ada Bengkel',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Daftarkan bengkel Anda untuk mulai menerima pesanan',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.registerBengkel);
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Daftarkan Bengkel'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.store, size: 100, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          const Text(
+            'Belum Ada Bengkel',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Daftarkan bengkel Anda untuk mulai menerima pesanan',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.registerBengkel);
+            },
+            child: const Text('Daftarkan Bengkel'),
+          )
+        ],
       ),
     );
   }
 
-  Widget _buildBengkelInfo(BengkelModel bengkel) {
-    Color statusColor;
-    String statusText;
-    
-    switch (bengkel.status) {
-      case BengkelStatus.pending:
-        statusColor = AppColors.warning;
-        statusText = 'Menunggu Verifikasi';
-        break;
-      case BengkelStatus.verified:
-        statusColor = AppColors.success;
-        statusText = 'Terverifikasi';
-        break;
-      case BengkelStatus.rejected:
-        statusColor = AppColors.error;
-        statusText = 'Ditolak';
-        break;
-    }
+  // ================= DETAIL =================
+  Widget _buildBengkelDetail(BengkelModel bengkel) {
+    final statusInfo = _getStatusInfo(bengkel.status);
 
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bengkel Image
           if (bengkel.photoUrl != null)
             Image.network(
               bengkel.photoUrl!,
               height: 200,
+              width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return _buildPlaceholderImage();
-              },
             )
           else
-            _buildPlaceholderImage(),
+            _placeholderImage(),
 
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Status Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        bengkel.status == BengkelStatus.verified
-                            ? Icons.verified
-                            : Icons.pending,
-                        size: 16,
-                        color: statusColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        statusText,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
+                _statusBadge(statusInfo),
                 const SizedBox(height: 16),
-                
-                // Bengkel Name
+
                 Text(
                   bengkel.name,
                   style: const TextStyle(
@@ -189,94 +117,22 @@ class _ManageBengkelScreenState extends State<ManageBengkelScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
-                // Info Cards
-                _buildInfoCard(
-                  icon: Icons.location_on,
-                  title: 'Alamat',
-                  value: bengkel.address,
+                _infoRow(Icons.location_on, bengkel.address),
+                _infoRow(Icons.phone, bengkel.phone),
+                _infoRow(
+                  Icons.access_time,
+                  '${bengkel.openTime} - ${bengkel.closeTime}',
                 ),
-                const SizedBox(height: 12),
-                _buildInfoCard(
-                  icon: Icons.phone,
-                  title: 'Telepon',
-                  value: bengkel.phone,
-                ),
-                const SizedBox(height: 12),
-                _buildInfoCard(
-                  icon: Icons.access_time,
-                  title: 'Jam Operasional',
-                  value: '${bengkel.openTime} - ${bengkel.closeTime}',
-                ),
-                const SizedBox(height: 12),
-                _buildInfoCard(
-                  icon: Icons.star,
-                  title: 'Rating',
-                  value: '${bengkel.rating} (${bengkel.totalReviews} ulasan)',
-                ),
-                
+
                 const SizedBox(height: 24),
-                
-                // Description
                 const Text(
                   'Deskripsi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(bengkel.description),
-                
-                const SizedBox(height: 24),
-                
-                // Services
-                const Text(
-                  'Layanan',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: bengkel.services.map((service) {
-                    return Chip(
-                      label: Text(service),
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
-                      labelStyle: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  }).toList(),
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Edit Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Navigate to edit bengkel
-                      Navigator.pushNamed(
-                        context,
-                        '/edit-bengkel',
-                        arguments: bengkel.id,
-                      );
-                    },
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit Informasi'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -285,58 +141,73 @@ class _ManageBengkelScreenState extends State<ManageBengkelScreen> {
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  // ================= STATUS =================
+  Map<String, dynamic> _getStatusInfo(String status) {
+    switch (status) {
+      case 'verified':
+        return {
+          'text': 'Terverifikasi',
+          'color': Colors.green,
+          'icon': Icons.verified,
+        };
+      case 'rejected':
+        return {
+          'text': 'Ditolak',
+          'color': Colors.red,
+          'icon': Icons.cancel,
+        };
+      default:
+        return {
+          'text': 'Menunggu Verifikasi',
+          'color': Colors.orange,
+          'icon': Icons.hourglass_top,
+        };
+    }
+  }
+
+  Widget _statusBadge(Map<String, dynamic> status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: status['color'].withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(status['icon'], size: 16, color: status['color']),
+          const SizedBox(width: 6),
+          Text(
+            status['text'],
+            style: TextStyle(
+              color: status['color'],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  Widget _placeholderImage() {
     return Container(
       height: 200,
       color: Colors.grey[200],
       child: const Center(
-        child: Icon(
-          Icons.store,
-          size: 80,
-          color: Colors.grey,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.primary, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        child: Icon(Icons.store, size: 80, color: Colors.grey),
       ),
     );
   }

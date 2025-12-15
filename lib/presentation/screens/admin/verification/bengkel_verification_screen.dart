@@ -46,19 +46,20 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildBengkelList(BengkelStatus.pending),
-          _buildBengkelList(BengkelStatus.verified),
-          _buildBengkelList(BengkelStatus.rejected),
+          _buildBengkelList(status: 'pending'),
+          _buildBengkelList(status: 'verified'),
+          _buildBengkelList(status: 'rejected'),
         ],
       ),
     );
   }
 
-  Widget _buildBengkelList(BengkelStatus status) {
+  // ================= LIST =================
+  Widget _buildBengkelList({required String status}) {
     return StreamBuilder<QuerySnapshot>(
       stream: _firestore
           .collection('bengkel')
-          .where('status', isEqualTo: status.name)
+          .where('status', isEqualTo: status)
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -66,26 +67,27 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.data!.docs.isEmpty) {
+        final bengkels = snapshot.data!.docs
+            .map((doc) =>
+                BengkelModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList();
+
+        if (bengkels.isEmpty) {
           return const Center(child: Text('Tidak ada bengkel'));
         }
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: snapshot.data!.docs.length,
+          itemCount: bengkels.length,
           itemBuilder: (context, index) {
-            final doc = snapshot.data!.docs[index];
-            final bengkel = BengkelModel.fromMap(
-              doc.data() as Map<String, dynamic>,
-              doc.id,
-            );
-            return _buildBengkelCard(bengkel);
+            return _buildBengkelCard(bengkels[index]);
           },
         );
       },
     );
   }
 
+  // ================= CARD =================
   Widget _buildBengkelCard(BengkelModel bengkel) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -134,7 +136,7 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
                   ],
                 ),
               ),
-              if (bengkel.status == BengkelStatus.pending)
+              if (bengkel.status == 'pending')
                 const Icon(Icons.arrow_forward_ios, size: 16),
             ],
           ),
@@ -152,6 +154,7 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
     );
   }
 
+  // ================= DETAIL =================
   void _showDetail(BengkelModel bengkel) {
     showModalBottomSheet(
       context: context,
@@ -178,19 +181,19 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
             Text('Jam: ${bengkel.openTime} - ${bengkel.closeTime}'),
             const SizedBox(height: 20),
 
-            if (bengkel.status == BengkelStatus.pending)
+            if (bengkel.status == 'pending')
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => _updateStatus(bengkel, 'rejected'),
+                      onPressed: () => _updateStatus(bengkel.id, 'rejected'),
                       child: const Text('Tolak'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _updateStatus(bengkel, 'active'),
+                      onPressed: () => _updateStatus(bengkel.id, 'verified'),
                       child: const Text('Setujui'),
                     ),
                   ),
@@ -202,16 +205,13 @@ class _BengkelVerificationScreenState extends State<BengkelVerificationScreen>
     );
   }
 
-  Future<void> _updateStatus(BengkelModel bengkel, String status) async {
+  // ================= UPDATE =================
+  Future<void> _updateStatus(String id, String status) async {
     Navigator.pop(context);
-
-    await _firestore.collection('bengkel').doc(bengkel.id).update({
+    await _firestore.collection('bengkel').doc(id).update({
       'status': status,
+      'isActive': status != 'rejected',
       'updatedAt': Timestamp.now(),
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Status bengkel diperbarui: $status')),
-    );
   }
 }

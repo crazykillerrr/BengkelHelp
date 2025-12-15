@@ -76,7 +76,21 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // ------------------------------
+Future<List<ProductModel>> searchProducts(String query) async {
+  if (query.isEmpty) return [];
+
+  final q = query.toLowerCase();
+
+  return _products.where((p) {
+    return p.name.toLowerCase().contains(q) ||
+        p.description.toLowerCase().contains(q) ||
+        p.category.toLowerCase().contains(q);
+  }).toList();
+}
+
+
+
+  // ------------------------------ 
   // ADD PRODUCT
   // ------------------------------
   Future<bool> addProduct(ProductModel product) async {

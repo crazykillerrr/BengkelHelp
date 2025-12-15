@@ -5,7 +5,7 @@ import '../../../core/themes/app_theme.dart';
 class BengkelCard extends StatelessWidget {
   final BengkelModel bengkel;
   final VoidCallback onTap;
-  
+
   const BengkelCard({
     super.key,
     required this.bengkel,
@@ -14,6 +14,8 @@ class BengkelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isVerified = bengkel.status == 'verified';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -25,7 +27,7 @@ class BengkelCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
+            // ================= IMAGE =================
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(AppTheme.radiusM),
@@ -41,13 +43,13 @@ class BengkelCard extends StatelessWidget {
                     )
                   : _buildPlaceholder(),
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(AppTheme.spacingM),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name and Verification
+                  // ================= NAME & VERIFIED =================
                   Row(
                     children: [
                       Expanded(
@@ -58,7 +60,7 @@ class BengkelCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (bengkel.isVerified)
+                      if (isVerified)
                         const Icon(
                           Icons.verified,
                           color: AppTheme.successColor,
@@ -66,10 +68,10 @@ class BengkelCard extends StatelessWidget {
                         ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: AppTheme.spacingS),
-                  
-                  // Rating
+
+                  // ================= RATING =================
                   Row(
                     children: [
                       const Icon(
@@ -90,10 +92,10 @@ class BengkelCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: AppTheme.spacingS),
-                  
-                  // Address
+
+                  // ================= ADDRESS =================
                   Row(
                     children: [
                       const Icon(
@@ -112,10 +114,10 @@ class BengkelCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: AppTheme.spacingS),
-                  
-                  // Services
+
+                  // ================= SERVICES =================
                   Wrap(
                     spacing: AppTheme.spacingXS,
                     runSpacing: AppTheme.spacingXS,
@@ -126,8 +128,9 @@ class BengkelCard extends StatelessWidget {
                           vertical: AppTheme.spacingXS,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusS),
                         ),
                         child: Text(
                           service,
@@ -147,7 +150,8 @@ class BengkelCard extends StatelessWidget {
       ),
     );
   }
-  
+
+  // ================= PLACEHOLDER =================
   Widget _buildPlaceholder() {
     return Container(
       height: 150,
