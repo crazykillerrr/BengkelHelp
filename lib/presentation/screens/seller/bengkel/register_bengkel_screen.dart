@@ -13,163 +13,153 @@ class RegisterBengkelScreen extends StatefulWidget {
 class _RegisterBengkelScreenState extends State<RegisterBengkelScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _name = TextEditingController();
+  final _description = TextEditingController();
+  final _address = TextEditingController();
+  final _phone = TextEditingController();
+  final _openTime = TextEditingController();
+  final _closeTime = TextEditingController();
 
-  bool _isLoading = false;
+  bool _loading = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
+    _name.dispose();
+    _description.dispose();
+    _address.dispose();
+    _phone.dispose();
+    _openTime.dispose();
+    _closeTime.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.currentUser;
+    final auth = context.read<AuthProvider>();
+    final user = auth.currentUser;
+    if (user == null) return;
 
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User tidak ditemukan')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
+    setState(() => _loading = true);
 
     try {
       await FirebaseFirestore.instance.collection('bengkel').add({
+        // ================== IDENTITAS ==================
         'ownerId': user.id,
-        'name': _nameController.text.trim(),
-        'description': _descriptionController.text.trim(),
-        'address': _addressController.text.trim(),
-        'phone': _phoneController.text.trim(),
+        'name': _name.text.trim(),
+        'description': _description.text.trim(),
+        'address': _address.text.trim(),
+        'phone': _phone.text.trim(),
 
-        // DEFAULT DATA
+        // ================== LOKASI ==================
+        'latitude': 0.0,
+        'longitude': 0.0,
+
+        // ================== OPERASIONAL ==================
+        'openTime': _openTime.text.trim(),
+        'closeTime': _closeTime.text.trim(),
+        'operatingHours': {},
+
+        // ================== MEDIA & LAYANAN ==================
         'photoUrl': null,
         'services': [],
-        'operatingHours': {},
-        'openTime': '',
-        'closeTime': '',
 
-        // VERIFICATION
-        'status': 'pending',
-        'isVerified': false,
+        // ================== STATUS ==================
+        'status': 'pending', // pending | verified | rejected
         'isActive': true,
 
-        // RATING
+        // ================== RATING ==================
         'rating': 0.0,
         'totalReviews': 0,
 
+        // ================== WAKTU ==================
         'createdAt': Timestamp.now(),
       });
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bengkel berhasil didaftarkan & menunggu verifikasi'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('Bengkel berhasil didaftarkan')),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mendaftarkan bengkel: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Gagal: $e')),
       );
     } finally {
-      setState(() => _isLoading = false);
+      setState(() => _loading = false);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Bengkel'),
-        backgroundColor: const Color(0xFF1E3A8A),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Informasi Bengkel',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-
-              _field(_nameController, 'Nama Bengkel', Icons.store),
-              _field(_descriptionController, 'Deskripsi', Icons.description, maxLines: 3),
-              _field(_addressController, 'Alamat', Icons.location_on, maxLines: 2),
-              _field(_phoneController, 'Nomor Telepon', Icons.phone,
-                  keyboardType: TextInputType.phone),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E3A8A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Daftar Bengkel',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _field(
     TextEditingController controller,
     String label,
     IconData icon, {
-    TextInputType? keyboardType,
-    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         validator: (v) => v == null || v.isEmpty ? '$label wajib diisi' : null,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Daftar Bengkel')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _field(_name, 'Nama Bengkel', Icons.store),
+              _field(_description, 'Deskripsi', Icons.description),
+              _field(_address, 'Alamat', Icons.location_on),
+              _field(
+                _phone,
+                'No Telepon',
+                Icons.phone,
+                keyboardType: TextInputType.phone,
+              ),
+              _field(
+                _openTime,
+                'Jam Buka (contoh: 08:00)',
+                Icons.access_time,
+              ),
+              _field(
+                _closeTime,
+                'Jam Tutup (contoh: 17:00)',
+                Icons.access_time,
+              ),
+
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _loading ? null : _submit,
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Daftarkan Bengkel'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

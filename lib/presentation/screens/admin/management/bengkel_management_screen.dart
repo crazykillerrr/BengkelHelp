@@ -84,34 +84,29 @@ class _BengkelManagementScreenState extends State<BengkelManagementScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+        onChanged: (value) =>
+            setState(() => _searchQuery = value.toLowerCase()),
       ),
     );
   }
 
   // ================= LIST =================
   Widget _buildBengkelList() {
-    Query query = _firestore.collection('bengkel');
-
-    if (_selectedStatus != 'all') {
-      query = query.where('status', isEqualTo: _selectedStatus);
-    }
-
     return StreamBuilder<QuerySnapshot>(
-      stream: query.orderBy('createdAt', descending: true).snapshots(),
+      stream: _firestore
+          .collection('bengkel')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final docs = snapshot.data!.docs;
-
-        final bengkels = docs
+        final bengkels = snapshot.data!.docs
             .map((doc) =>
                 BengkelModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .where((b) =>
-                b.name.toLowerCase().contains(_searchQuery) ||
-                b.address.toLowerCase().contains(_searchQuery))
+            .where(_filterByStatus)
+            .where(_filterBySearch)
             .toList();
 
         if (bengkels.isEmpty) {
@@ -129,51 +124,66 @@ class _BengkelManagementScreenState extends State<BengkelManagementScreen> {
     );
   }
 
+  // ================= FILTER LOGIC =================
+  bool _filterByStatus(BengkelModel b) {
+    if (_selectedStatus == 'all') return true;
+    return b.status == _selectedStatus;
+  }
+
+  bool _filterBySearch(BengkelModel b) {
+    return b.name.toLowerCase().contains(_searchQuery) ||
+        b.address.toLowerCase().contains(_searchQuery);
+  }
+
   // ================= CARD =================
   Widget _buildBengkelCard(BengkelModel bengkel) {
-    Color statusColor = Colors.grey;
-    if (bengkel.status == BengkelStatus.verified) {
-      statusColor = Colors.green;
-    } else if (bengkel.status == BengkelStatus.pending) {
-      statusColor = Colors.orange;
-    } else if (bengkel.status == BengkelStatus.rejected) {
-      statusColor = Colors.red;
+    Color statusColor;
+    String statusText;
+
+    switch (bengkel.status) {
+      case 'verified':
+        statusColor = Colors.green;
+        statusText = 'Verified';
+        break;
+      case 'rejected':
+        statusColor = Colors.red;
+        statusText = 'Rejected';
+        break;
+      default:
+        statusColor = Colors.orange;
+        statusText = 'Pending';
     }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.15),
           child: const Icon(Icons.store, color: AppColors.primary),
         ),
         title: Text(
           bengkel.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(bengkel.address),
+        subtitle: Text('${bengkel.address}\n$statusText'),
         trailing: PopupMenuButton(
           onSelected: (value) {
             if (value == 'view') {
               _showDetail(bengkel);
             } else if (value == 'verify') {
               _updateStatus(bengkel.id, 'verified');
-            } else if (value == 'deactivate') {
+            } else if (value == 'reject') {
               _updateStatus(bengkel.id, 'rejected');
             }
           },
           itemBuilder: (_) => [
             const PopupMenuItem(value: 'view', child: Text('Detail')),
-            if (bengkel.status == BengkelStatus.pending)
+            if (bengkel.status == 'pending')
               const PopupMenuItem(value: 'verify', child: Text('Verifikasi')),
-            const PopupMenuItem(
-              value: 'deactivate',
-              child: Text('Nonaktifkan'),
-            ),
+            if (bengkel.status != 'rejected')
+              const PopupMenuItem(value: 'reject', child: Text('Tolak')),
           ],
         ),
-        leadingAndTrailingTextStyle:
-            TextStyle(color: statusColor, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -190,8 +200,7 @@ class _BengkelManagementScreenState extends State<BengkelManagementScreen> {
           children: [
             Text('Alamat: ${bengkel.address}'),
             Text('Telepon: ${bengkel.phone}'),
-            Text('Status: ${bengkel.status.name}'),
-            Text('Rating: ${bengkel.rating}'),
+            Text('Status: ${bengkel.status}'),
           ],
         ),
         actions: [
@@ -205,16 +214,10 @@ class _BengkelManagementScreenState extends State<BengkelManagementScreen> {
   }
 
   // ================= UPDATE STATUS =================
-  Future<void> _updateStatus(String bengkelId, String status) async {
-    await _firestore.collection('bengkel').doc(bengkelId).update({
+  Future<void> _updateStatus(String id, String status) async {
+    await _firestore.collection('bengkel').doc(id).update({
       'status': status,
       'updatedAt': Timestamp.now(),
     });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status bengkel diperbarui: $status')),
-      );
-    }
   }
 }
