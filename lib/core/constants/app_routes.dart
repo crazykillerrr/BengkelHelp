@@ -68,6 +68,12 @@ class AppRoutes {
   static const String booking = '/booking';
   // Admin routes
   static const String adminHome = '/admin-home';
+  static const String manageBengkel = '/bengkel-management';
+  static const String manageUser = '/user-management';
+  static const String revenueReport = '/revenue-report';
+  static const String activityReport = '/activity-report';
+
+
 
   static const String walletScreen = '/wallet-screen';
 
