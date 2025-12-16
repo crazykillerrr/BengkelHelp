@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../../../data/models/bengkel_model.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/bengkel_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
@@ -34,6 +35,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       }
     });
   }
+
+  
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
@@ -560,7 +563,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 }
 
 class _BengkelHorizontalCard extends StatelessWidget {
-  final dynamic bengkel;
+  final BengkelModel bengkel;
   final VoidCallback onTap;
 
   const _BengkelHorizontalCard({
@@ -570,14 +573,16 @@ class _BengkelHorizontalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isVerified = bengkel.status == 'verified';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
+        width: 180,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -589,11 +594,10 @@ class _BengkelHorizontalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
+            // ================= FOTO =================
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
               ),
               child: bengkel.photoUrl != null
                   ? Image.network(
@@ -601,38 +605,102 @@ class _BengkelHorizontalCard extends StatelessWidget {
                       height: 110,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                      errorBuilder: (_, __, ___) => _placeholder(),
                     )
-                  : _buildPlaceholder(),
+                  : _placeholder(),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      bengkel.name,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+
+            // ================= KONTEN =================
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // NAMA + VERIFIED
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          bengkel.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      bengkel.address,
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey,
+                      if (isVerified)
+                        const Icon(
+                          Icons.verified,
+                          size: 16,
+                          color: Colors.green,
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // RATING
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        size: 14,
+                        color: Colors.amber,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 4),
+                      Text(
+                        bengkel.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // ALAMAT
+                  Text(
+                    bengkel.address,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
                     ),
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  // LAYANAN (MAX 3)
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: bengkel.services.take(3).map((service) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          service,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
           ],
@@ -641,7 +709,7 @@ class _BengkelHorizontalCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _placeholder() {
     return Container(
       height: 110,
       width: double.infinity,

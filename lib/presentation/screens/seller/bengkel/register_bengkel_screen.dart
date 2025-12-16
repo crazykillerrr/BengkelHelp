@@ -34,63 +34,57 @@ class _RegisterBengkelScreenState extends State<RegisterBengkelScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    final auth = context.read<AuthProvider>();
-    final user = auth.currentUser;
-    if (user == null) return;
+  final auth = context.read<AuthProvider>();
+  final user = auth.currentUser;
+  if (user == null) return;
 
-    setState(() => _loading = true);
+  setState(() => _loading = true);
 
-    try {
-      await FirebaseFirestore.instance.collection('bengkel').add({
-        // ================== IDENTITAS ==================
-        'ownerId': user.id,
-        'name': _name.text.trim(),
-        'description': _description.text.trim(),
-        'address': _address.text.trim(),
-        'phone': _phone.text.trim(),
+  try {
+    // 🔥 DEBUG WAJIB
+    debugPrint('🔥 Writing to collection: bengkels');
 
-        // ================== LOKASI ==================
-        'latitude': 0.0,
-        'longitude': 0.0,
+    await FirebaseFirestore.instance
+        .collection('bengkels') // HARUS bengkels
+        .add({
+      'ownerId': user.id,
+      'name': _name.text.trim(),
+      'description': _description.text.trim(),
+      'address': _address.text.trim(),
+      'phone': _phone.text.trim(),
+      'latitude': 0.0,
+      'longitude': 0.0,
+      'openTime': _openTime.text.trim(),
+      'closeTime': _closeTime.text.trim(),
+      'operatingHours': {},
+      'photoUrl': null,
+      'services': [],
+      'status': 'verified',
+      'isActive': true,
+      'rating': 0.0,
+      'totalReviews': 0,
+      'createdAt': Timestamp.now(),
+    });
 
-        // ================== OPERASIONAL ==================
-        'openTime': _openTime.text.trim(),
-        'closeTime': _closeTime.text.trim(),
-        'operatingHours': {},
+    if (!mounted) return;
 
-        // ================== MEDIA & LAYANAN ==================
-        'photoUrl': null,
-        'services': [],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Bengkel berhasil didaftarkan')),
+    );
 
-        // ================== STATUS ==================
-        'status': 'pending', // pending | verified | rejected
-        'isActive': true,
-
-        // ================== RATING ==================
-        'rating': 0.0,
-        'totalReviews': 0,
-
-        // ================== WAKTU ==================
-        'createdAt': Timestamp.now(),
-      });
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bengkel berhasil didaftarkan')),
-      );
-
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal: $e')),
-      );
-    } finally {
-      setState(() => _loading = false);
-    }
+    Navigator.pop(context);
+  } catch (e) {
+    debugPrint('❌ ERROR REGISTER BENGKEL: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Gagal: $e')),
+    );
+  } finally {
+    setState(() => _loading = false);
   }
+}
+
 
   Widget _field(
     TextEditingController controller,
@@ -136,17 +130,15 @@ class _RegisterBengkelScreenState extends State<RegisterBengkelScreen> {
               ),
               _field(
                 _openTime,
-                'Jam Buka (contoh: 08:00)',
+                'Jam Buka (08:00)',
                 Icons.access_time,
               ),
               _field(
                 _closeTime,
-                'Jam Tutup (contoh: 17:00)',
+                'Jam Tutup (17:00)',
                 Icons.access_time,
               ),
-
               const SizedBox(height: 24),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,
