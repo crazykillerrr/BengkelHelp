@@ -46,7 +46,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   final List<String> _conditions = ['Baru', 'Bekas'];
 
-  // LOAD PRODUCT DATA
   Future<void> _loadProduct() async {
     final provider = Provider.of<ProductProvider>(context, listen: false);
 
@@ -91,9 +90,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     );
 
     if (img != null) {
-      setState(() {
-        _newImageFile = File(img.path);
-      });
+      setState(() => _newImageFile = File(img.path));
     }
   }
 
@@ -104,24 +101,22 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     final provider = Provider.of<ProductProvider>(context, listen: false);
 
-    // NOTE:
-    // Upload gambar ke Firebase Storage jika _newImageFile != null
-    // Di sini sementara pakai image lama (_photoUrl)
+    final old = provider.products.firstWhere((p) => p.id == widget.productId);
 
     final updatedProduct = ProductModel(
       id: widget.productId,
-      sellerId: provider.products.firstWhere((p) => p.id == widget.productId).sellerId,
-      bengkelId: provider.products.firstWhere((p) => p.id == widget.productId).bengkelId,
+      sellerId: old.sellerId,
+      bengkelId: old.bengkelId,
       name: _nameCtrl.text,
       description: _descCtrl.text,
       category: _selectedCategory,
       price: double.parse(_priceCtrl.text),
       stock: int.parse(_stockCtrl.text),
-      photoUrl: _photoUrl, // TODO: replace with uploaded URL if needed
+      photoUrl: _photoUrl,
       brand: _brandCtrl.text.isNotEmpty ? _brandCtrl.text : null,
       condition: _selectedCondition,
       status: "pending",
-      createdAt: provider.products.firstWhere((p) => p.id == widget.productId).createdAt,
+      createdAt: old.createdAt,
     );
 
     final success = await provider.updateProduct(updatedProduct);
@@ -148,9 +143,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text("Edit Produk"),
         backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -158,123 +156,164 @@ class _EditProductScreenState extends State<EditProductScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // IMAGE PICKER
-              InkWell(
+              // ================= IMAGE =================
+              GestureDetector(
                 onTap: _pickImage,
                 child: Container(
                   height: 200,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _newImageFile != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(_newImageFile!, fit: BoxFit.cover),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(_photoUrl, fit: BoxFit.cover),
-                        ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: _newImageFile != null
+                        ? Image.file(_newImageFile!, fit: BoxFit.cover)
+                        : Image.network(_photoUrl, fit: BoxFit.cover),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // NAME
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: "Nama Produk"),
-                validator: (v) => Validators.validateRequired(v, "nama produk"),
-              ),
-
-              const SizedBox(height: 12),
-
-              // CATEGORY
-              DropdownButtonFormField(
-                value: _selectedCategory,
-                decoration: const InputDecoration(labelText: "Kategori"),
-                items: _categories.map((c) {
-                  return DropdownMenuItem(value: c, child: Text(c));
-                }).toList(),
-                onChanged: (v) => setState(() => _selectedCategory = v!),
-              ),
-
-              const SizedBox(height: 12),
-
-              // DESCRIPTION
-              TextFormField(
-                controller: _descCtrl,
-                maxLines: 4,
-                decoration: const InputDecoration(labelText: "Deskripsi"),
-                validator: (v) => Validators.validateRequired(v, "deskripsi"),
-              ),
-
-              const SizedBox(height: 12),
-
-              // PRICE & STOCK
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _priceCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Harga"),
-                      validator: (v) => Validators.validateNumber(v, "harga"),
+              // ================= FORM CARD =================
+              _card(
+                child: Column(
+                  children: [
+                    _input(_nameCtrl, "Nama Produk",
+                        validator: (v) =>
+                            Validators.validateRequired(v, "nama produk")),
+                    const SizedBox(height: 12),
+                    _dropdown(
+                      label: "Kategori",
+                      value: _selectedCategory,
+                      items: _categories,
+                      onChanged: (v) =>
+                          setState(() => _selectedCategory = v!),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _stockCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Stok"),
-                      validator: (v) => Validators.validateNumber(v, "stok"),
+                    const SizedBox(height: 12),
+                    _input(_descCtrl, "Deskripsi",
+                        maxLines: 4,
+                        validator: (v) =>
+                            Validators.validateRequired(v, "deskripsi")),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _input(
+                            _priceCtrl,
+                            "Harga",
+                            keyboardType: TextInputType.number,
+                            validator: (v) =>
+                                Validators.validateNumber(v, "harga"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _input(
+                            _stockCtrl,
+                            "Stok",
+                            keyboardType: TextInputType.number,
+                            validator: (v) =>
+                                Validators.validateNumber(v, "stok"),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    _input(_brandCtrl, "Merek (Opsional)"),
+                    const SizedBox(height: 12),
+                    _dropdown(
+                      label: "Kondisi",
+                      value: _selectedCondition,
+                      items: _conditions,
+                      onChanged: (v) =>
+                          setState(() => _selectedCondition = v!),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
-              // BRAND
-              TextFormField(
-                controller: _brandCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Merek (Opsional)"),
-              ),
-
-              const SizedBox(height: 12),
-
-              // CONDITION
-              DropdownButtonFormField(
-                value: _selectedCondition,
-                decoration: const InputDecoration(labelText: "Kondisi"),
-                items: _conditions.map((c) {
-                  return DropdownMenuItem(value: c, child: Text(c));
-                }).toList(),
-                onChanged: (v) => setState(() => _selectedCondition = v!),
-              ),
-
-              const SizedBox(height: 30),
-
+              // ================= BUTTON =================
               ElevatedButton(
                 onPressed: _saving ? null : _saveProduct,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 child: _saving
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
                         "Simpan Perubahan",
-                        style: TextStyle(fontSize: 16),
+                        style:
+                            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-              )
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ================= UI HELPERS =================
+
+  Widget _card({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _input(
+    TextEditingController ctrl,
+    String label, {
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: ctrl,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  Widget _dropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      items: items
+          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+          .toList(),
+      onChanged: onChanged,
     );
   }
 }
