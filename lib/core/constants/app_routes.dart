@@ -142,6 +142,7 @@ class AppRoutes {
 
       case editProfile:
         return MaterialPageRoute(builder: (_) => const EditProfileScreen());
+      
 
       // Seller routes
       case sellerHome:

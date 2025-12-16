@@ -41,7 +41,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB4obk3FyO2Eh9BJ9YT2F3vHa6H-wYol2U',
+    apiKey: 'AIzaSyAcTfNwF-LATUxPdE_SzeAXG936AiqyCMw',
     appId: '1:873260182162:web:0448000a55b05859ed544b',
     messagingSenderId: '873260182162',
     projectId: 'bengkelhelp-79fd2',
@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDeOQxCQSv6sMQ9pziyV4607P-vGhE4q_w',
+    apiKey: 'AIzaSyASv_LjXOSL6i5urgWsIaGi4d0-cY2eumU',
     appId: '1:873260182162:android:96b124e7a398aa7eed544b',
     messagingSenderId: '873260182162',
     projectId: 'bengkelhelp-79fd2',
@@ -59,7 +59,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAWV6bmTwJYC5emVVYRhFVbABoWm8trFRY',
+    apiKey: 'AIzaSyAVXWQdtsuYaMaDzgYqTUS7fEP5Qsr19UA',
     appId: '1:873260182162:ios:d39f4e3112055a89ed544b',
     messagingSenderId: '873260182162',
     projectId: 'bengkelhelp-79fd2',
@@ -68,7 +68,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAWV6bmTwJYC5emVVYRhFVbABoWm8trFRY',
+    apiKey: 'AIzaSyAVXWQdtsuYaMaDzgYqTUS7fEP5Qsr19UA',
     appId: '1:873260182162:ios:d39f4e3112055a89ed544b',
     messagingSenderId: '873260182162',
     projectId: 'bengkelhelp-79fd2',
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyB4obk3FyO2Eh9BJ9YT2F3vHa6H-wYol2U',
+    apiKey: 'AIzaSyA0UiNWCm7XgUZlc1KoPMJDB1Z2iBeXTwg',
     appId: '1:873260182162:web:cacfb012b4e5a90fed544b',
     messagingSenderId: '873260182162',
     projectId: 'bengkelhelp-79fd2',
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'bengkelhelp-79fd2.firebasestorage.app',
     measurementId: 'G-6X3G2Y3PX2',
   );
+
 }
