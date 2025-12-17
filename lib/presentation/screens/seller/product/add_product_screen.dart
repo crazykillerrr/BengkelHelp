@@ -147,7 +147,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Produk'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Color(0xFF1E3A8A),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
