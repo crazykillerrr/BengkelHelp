@@ -76,7 +76,7 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-Future<List<ProductModel>> searchProducts(String query) async {
+List<ProductModel> searchProducts(String query) {
   if (query.isEmpty) return [];
 
   final q = query.toLowerCase();
@@ -87,6 +87,7 @@ Future<List<ProductModel>> searchProducts(String query) async {
         p.category.toLowerCase().contains(q);
   }).toList();
 }
+
 
 
 

@@ -166,13 +166,27 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Status Pesanan",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text("Riwayat Pesanan ›", style: TextStyle(color: Colors.grey)),
-            ],
-          ),
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    const Text(
+      "Status Pesanan",
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+    GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.incomingOrders);
+      },
+      child: const Text(
+        "Riwayat Pesanan ›",
+        style: TextStyle(
+          color: Colors.grey,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+  ],
+),
+
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

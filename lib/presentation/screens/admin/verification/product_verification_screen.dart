@@ -200,7 +200,7 @@ class _ProductCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () =>
-                            _updateStatus(context, 'active'),
+                            _updateStatus(context, 'verified'),
                         child: const Text('Setujui'),
                       ),
                     ),
