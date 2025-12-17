@@ -1,4 +1,5 @@
 import 'package:bengkelhelp/core/constants/app_routes.dart';
+import 'package:bengkelhelp/presentation/screens/user/order/order_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/providers/auth_provider.dart';
@@ -239,8 +240,15 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       _MenuItem(
                         icon: Icons.receipt_long_outlined,
-                        title: 'Riwayat Transaksi',
-                        onTap: () {},
+                        title: 'Riwayat Pesanan',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                            builder: (_) => const OrderListScreen(),
+                            ),
+                           );
+                        },
                       ),
                       _MenuItem(
                         icon: Icons.favorite_outline,

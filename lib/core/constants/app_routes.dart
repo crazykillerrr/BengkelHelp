@@ -29,6 +29,7 @@ import 'package:bengkelhelp/presentation/screens/seller/home/seller_home_screen.
 import 'package:bengkelhelp/presentation/screens/seller/bengkel/register_bengkel_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/product/add_product_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/product/edit_product_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/order/incoming_order_screen.dart';
 
 
 // Admin screens
@@ -61,6 +62,7 @@ class AppRoutes {
   static const String sellerHome = '/seller-home';
   static const String registerBengkel = '/register-bengkel';
   static const String addProduct = '/add-product';
+  static const String incomingOrders = '/incoming-orders';
 
   static const String editProduct = '/edit-product';
 
@@ -163,6 +165,10 @@ class AppRoutes {
       return MaterialPageRoute(
         builder: (_) => EditProductScreen(productId: productId),
       );
+
+      case incomingOrders:
+    return MaterialPageRoute(builder: (_) => const IncomingOrderScreen());
+
   
 
       default:

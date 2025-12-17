@@ -7,6 +7,7 @@ import '../../../../data/providers/cart_provider.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../widgets/common/custom_button.dart';
+import '../../../screens/user/shop/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ProductModel product;
@@ -39,6 +40,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         action: SnackBarAction(
           label: 'Lihat Keranjang',
           onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CartScreen()),
+           );
             // TODO: Navigate to cart
           },
         ),
