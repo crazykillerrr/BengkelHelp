@@ -37,7 +37,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola Produk'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Color(0xFF1E3A8A),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -111,7 +111,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
         onPressed: () => Navigator.pushNamed(context, AppRoutes.addProduct),
         icon: const Icon(Icons.add),
         label: const Text('Tambah Produk'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Color(0xFF1E3A8A),
       ),
     );
   }
@@ -190,7 +190,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: Color(0xFF1E3A8A),
                             ),
                           ),
                         ),
