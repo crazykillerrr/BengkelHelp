@@ -146,7 +146,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text("Edit Produk"),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -241,7 +241,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               ElevatedButton(
                 onPressed: _saving ? null : _saveProduct,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Color(0xFF1E3A8A),
                   minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
