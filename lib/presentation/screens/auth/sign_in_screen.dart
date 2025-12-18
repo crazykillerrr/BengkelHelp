@@ -115,7 +115,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     
                     // Illustration
                     Image.asset(
-                      'assets/images/mechanic.png',
+                      'assets/images/bengkelhelp.png',
                       height: 180,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(

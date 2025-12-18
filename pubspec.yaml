@@ -54,7 +54,7 @@ flutter:
   uses-material-design: true
   
   assets:
-    - assets/images/mechanic.png
+    - assets/images/bengkelhelp.png
     - assets/icons/
   
 dependency_overrides:
