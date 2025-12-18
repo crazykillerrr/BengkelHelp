@@ -39,9 +39,12 @@ class OrderProvider with ChangeNotifier {
 
   Future<bool> createOrder(OrderModel order) async {
   try {
+    if (order.sellerId.isEmpty) {
+      throw Exception('Seller ID tidak boleh kosong');
+    }
+
     final docRef = await _firestore.collection('orders').add(order.toMap());
 
-    // Update ID di object
     final newOrder = OrderModel(
       id: docRef.id,
       userId: order.userId,
@@ -69,6 +72,31 @@ class OrderProvider with ChangeNotifier {
     _errorMessage = e.toString();
     notifyListeners();
     return false;
+  }
+}
+
+Future<void> fetchUserOrders(String userId) async {
+  try {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final snapshot = await _firestore
+        .collection('orders')
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    _orders.clear();
+    _orders.addAll(
+      snapshot.docs.map((doc) => OrderModel.fromFirestore(doc)),
+    );
+
+  } catch (e) {
+    _errorMessage = e.toString();
+  } finally {
+    _isLoading = false;
+    notifyListeners();
   }
 }
 
