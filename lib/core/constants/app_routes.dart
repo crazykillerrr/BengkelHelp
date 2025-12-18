@@ -23,6 +23,7 @@ import 'package:bengkelhelp/presentation/screens/user/wallet/wallet_screen.dart'
 import 'package:bengkelhelp/presentation/screens/user/reminder/reminder_list_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/profile/profile_screen.dart';
 import 'package:bengkelhelp/presentation/screens/user/profile/edit_profile_screen.dart';
+import 'package:bengkelhelp/presentation/screens/user/shop/checkout_screen.dart';
 
 // Seller screens
 import 'package:bengkelhelp/presentation/screens/seller/home/seller_home_screen.dart';
@@ -57,6 +58,8 @@ class AppRoutes {
   static const String reminderList = '/reminder-list';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
+  static const checkout = '/checkout';
+
 
   // Seller routes
   static const String sellerHome = '/seller-home';
@@ -135,6 +138,10 @@ class AppRoutes {
 
       case topUp:
         return MaterialPageRoute(builder: (_) => const TopUpScreen());
+
+      case checkout:
+      return MaterialPageRoute(builder: (_) => const CheckoutScreen());
+
 
       case reminderList:
         return MaterialPageRoute(builder: (_) => const ReminderListScreen());

@@ -20,6 +20,10 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  // ===========================================================
+  // INIT
+  // ===========================================================
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +68,6 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
           ],
         ),
       ),
-
       body: Consumer<OrderProvider>(
         builder: (_, provider, __) {
           if (provider.isLoading) {
@@ -90,22 +93,17 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
   // ===========================================================
 
   Widget _buildOrderList(OrderProvider provider, OrderStatus status) {
-    final orders = provider.orders
-        .where((order) => order.status == status)
-        .toList();
+    final orders = provider.orders.where((order) {
+      if (status == OrderStatus.onProgress) {
+        // Diproses = confirmed + onProgress
+        return order.status == OrderStatus.confirmed ||
+            order.status == OrderStatus.onProgress;
+      }
+      return order.status == status;
+    }).toList();
 
     if (orders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text('Tidak ada pesanan',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-          ],
-        ),
-      );
+      return _emptyState();
     }
 
     return RefreshIndicator(
@@ -114,6 +112,22 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
         padding: const EdgeInsets.all(16),
         itemCount: orders.length,
         itemBuilder: (_, i) => _buildOrderCard(orders[i]),
+      ),
+    );
+  }
+
+  Widget _emptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.inbox, size: 80, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Tidak ada pesanan',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ],
       ),
     );
   }
@@ -134,24 +148,38 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              // Header -------------------------------------------------------
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Order #${order.id.substring(0, 8)}",
-                    style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  _buildStatusBadge(order.status),
-                ],
-              ),
-
+              _orderHeader(order),
               const SizedBox(height: 16),
+              _orderItemsPreview(order),
+              const Divider(height: 24),
+              _orderFooter(order),
+              _orderActionButtons(order),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-              // Items Preview ------------------------------------------------
-              ...order.items.take(2).map((item) => Padding(
+  Widget _orderHeader(OrderModel order) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Order #${order.id.substring(0, 8)}",
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        _buildStatusBadge(order.status),
+      ],
+    );
+  }
+
+  Widget _orderItemsPreview(OrderModel order) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...order.items.take(2).map(
+              (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [
@@ -166,79 +194,93 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 14),
+                            fontWeight: FontWeight.w500, fontSize: 14),
                       ),
                     ),
                     Text("${item.quantity}x"),
                   ],
                 ),
-              )),
-
-              if (order.items.length > 2)
-                Text(
-                  "+${order.items.length - 2} produk lainnya",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-
-              const Divider(height: 24),
-
-              // Footer -------------------------------------------------------
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    CurrencyFormatter.format(order.totalAmount),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    DateFormatter.formatDate(order.createdAt),
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
               ),
-
-              if (order.status == OrderStatus.pending) ...[
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _rejectOrder(order),
-                        child: const Text("Tolak"),
-                        style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _acceptOrder(order),
-                        child: const Text("Terima"),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
+            ),
+        if (order.items.length > 2)
+          Text(
+            "+${order.items.length - 2} produk lainnya",
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
           ),
-        ),
-      ),
+      ],
     );
   }
 
+  Widget _orderFooter(OrderModel order) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          CurrencyFormatter.format(order.totalAmount),
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          DateFormatter.formatDate(order.createdAt),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  Widget _orderActionButtons(OrderModel order) {
+    if (order.status == OrderStatus.pending) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => _rejectOrder(order),
+                style:
+                    OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text("Tolak"),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => _acceptOrder(order),
+                child: const Text("Terima"),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (order.status == OrderStatus.onProgress) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.check_circle),
+            label: const Text("Selesaikan Pesanan"),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () => _completeOrder(order),
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   // ===========================================================
-  // IMAGE BUILDER
+  // IMAGE
   // ===========================================================
 
   Widget _buildItemImage(String? url) {
@@ -268,8 +310,8 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
   // ===========================================================
 
   Widget _buildStatusBadge(OrderStatus status) {
-    Color color;
-    String text;
+    late Color color;
+    late String text;
 
     switch (status) {
       case OrderStatus.pending:
@@ -302,217 +344,217 @@ class _IncomingOrderScreenState extends State<IncomingOrderScreen>
       ),
       child: Text(
         text,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+        style:
+            TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
       ),
     );
   }
 
   // ===========================================================
-  // ORDER DETAIL (BOTTOM SHEET)
-  // ===========================================================
-
-  void _showOrderDetail(OrderModel order) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          expand: false,
-          builder: (_, controller) {
-            return SingleChildScrollView(
-              controller: controller,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  
-                  Center(
-                    child: Container(
-                      width: 45,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Text("Detail Pesanan",
-                      style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text("Order #${order.id}",
-                      style: TextStyle(color: Colors.grey[600])),
-
-                  const Divider(height: 30),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Status:",
-                          style: TextStyle(fontSize: 16)),
-                      _buildStatusBadge(order.status),
-                    ],
-                  ),
-
-                  if (order.deliveryAddress != null) ...[
-                    const SizedBox(height: 20),
-                    const Text("Alamat Pengiriman",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(order.deliveryAddress!)),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 20),
-                  const Text("Produk:",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 12),
-
-                  ...order.items.map((item) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: _buildItemImage(item.photoUrl),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(item.productName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500)),
-                          ),
-                          Text(
-                            CurrencyFormatter.format(
-                                item.price * item.quantity),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-
-                  const Divider(height: 30),
-
-                  _buildPriceRow("Subtotal", order.subtotal ?? 0),
-                  const SizedBox(height: 6),
-                  _buildPriceRow("Biaya Kirim", order.deliveryFee ?? 0),
-                  const Divider(height: 25),
-                  _buildPriceRow("Total", order.totalAmount, isTotal: true),
-
-                  const SizedBox(height: 25),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildPriceRow(String label, double value, {bool isTotal = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: isTotal ? 16 : 14,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal)),
-        Text(CurrencyFormatter.format(value),
-            style: TextStyle(
-                fontSize: isTotal ? 18 : 14,
-                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-                color: isTotal ? AppColors.primary : Colors.black)),
-      ],
-    );
-  }
-
-  // ===========================================================
-  // ACTION HANDLERS
+  // ACTIONS
   // ===========================================================
 
   Future<void> _acceptOrder(OrderModel order) async {
-    bool? confirm = await _confirmDialog(
-      "Terima Pesanan",
-      "Yakin ingin menerima pesanan ini?",
-    );
-    if (confirm != true) return;
+    if (!await _confirmDialog("Terima Pesanan",
+        "Yakin ingin menerima pesanan ini?")) return;
 
     final provider = Provider.of<OrderProvider>(context, listen: false);
-    final success = await provider.updateOrderStatus(
-      order.id,
-      OrderStatus.confirmed,
-    );
+    await provider.updateOrderStatus(order.id, OrderStatus.onProgress);
+    await _loadOrders();
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(success ? "Pesanan diterima" : "Gagal menerima pesanan"),
-        backgroundColor: success ? Colors.green : Colors.red,
-      ),
+      const SnackBar(
+          content: Text("Pesanan diproses"), backgroundColor: Colors.green),
+    );
+  }
+
+  Future<void> _completeOrder(OrderModel order) async {
+    if (!await _confirmDialog("Selesaikan Pesanan",
+        "Yakin pesanan ini sudah selesai?")) return;
+
+    final provider = Provider.of<OrderProvider>(context, listen: false);
+    await provider.updateOrderStatus(order.id, OrderStatus.completed);
+    await _loadOrders();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text("Pesanan selesai"), backgroundColor: Colors.green),
     );
   }
 
   Future<void> _rejectOrder(OrderModel order) async {
-    bool? confirm = await _confirmDialog(
+    if (!await _confirmDialog(
       "Tolak Pesanan",
       "Yakin ingin menolak pesanan ini?",
       destructive: true,
-    );
-    if (confirm != true) return;
+    )) return;
 
     final provider = Provider.of<OrderProvider>(context, listen: false);
     await provider.updateOrderStatus(order.id, OrderStatus.cancelled);
+    await _loadOrders();
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Pesanan ditolak"), backgroundColor: Colors.orange),
+      const SnackBar(
+          content: Text("Pesanan ditolak"),
+          backgroundColor: Colors.orange),
     );
   }
 
-  Future<bool?> _confirmDialog(String title, String message,
-      {bool destructive = false}) {
-    return showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Batal"),
+  Future<bool> _confirmDialog(
+    String title,
+    String message, {
+    bool destructive = false,
+  }) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Batal"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      destructive ? Colors.red : AppColors.primary,
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Ya"),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: destructive ? Colors.red : AppColors.primary),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Ya"),
+        ) ??
+        false;
+  }
+
+  void _showOrderDetail(OrderModel order) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, controller) {
+          return SingleChildScrollView(
+            controller: controller,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  "Detail Pesanan",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "Order #${order.id}",
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+
+                const Divider(height: 30),
+
+                _buildStatusBadge(order.status),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Daftar Produk",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                ...order.items.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: _buildItemImage(item.photoUrl),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(item.productName),
+                        ),
+                        Text(
+                          "${item.quantity} x ${CurrencyFormatter.format(item.price)}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+
+                const Divider(height: 30),
+
+                _buildPriceRow("Subtotal", order.subtotal ?? 0),
+                _buildPriceRow("Ongkir", order.deliveryFee ?? 0),
+                const Divider(),
+                _buildPriceRow(
+                  "Total",
+                  order.totalAmount,
+                  isTotal: true,
+                ),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+  Widget _buildPriceRow(String label, double amount, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 16 : 14,
+            ),
+          ),
+          Text(
+            CurrencyFormatter.format(amount),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 16 : 14,
+            ),
           ),
         ],
       ),
