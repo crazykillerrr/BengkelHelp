@@ -157,82 +157,87 @@ class _OrderListScreenState extends State<OrderListScreen> {
   // ORDER CARD
   // =====================================================
   Widget _orderCard(OrderModel order) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // HEADER
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Order #${order.id.substring(0, 8)}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
+    return GestureDetector(
+      onTap: () => _showOrderDetail(order),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
               ),
-              _statusBadge(order.status),
             ],
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // HEADER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Order #${order.id.substring(0, 8)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  _statusBadge(order.status),
+                ],
+              ),
 
-          const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-          // ITEMS
-          ...order.items.take(2).map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    "• ${item.productName} (${item.quantity}x)",
-                    style: const TextStyle(fontSize: 13),
+              // ITEMS
+              ...order.items.take(2).map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        "• ${item.productName} (${item.quantity}x)",
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ),
+
+              if (order.items.length > 2)
+                Text(
+                  "+${order.items.length - 2} produk lainnya",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
                   ),
                 ),
-              ),
 
-          if (order.items.length > 2)
-            Text(
-              "+${order.items.length - 2} produk lainnya",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
+              const Divider(height: 24),
 
-          const Divider(height: 24),
-
-          // FOOTER
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                CurrencyFormatter.format(order.totalAmount),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A8A),
-                ),
-              ),
-              Text(
-                DateFormatter.formatDate(order.createdAt),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+              // FOOTER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    CurrencyFormatter.format(order.totalAmount),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E3A8A),
+                    ),
+                  ),
+                  Text(
+                    DateFormatter.formatDate(order.createdAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -241,8 +246,8 @@ class _OrderListScreenState extends State<OrderListScreen> {
   // STATUS BADGE
   // =====================================================
   Widget _statusBadge(OrderStatus status) {
-    String text;
-    Color color;
+    late String text;
+    late Color color;
 
     switch (status) {
       case OrderStatus.pending:
@@ -278,6 +283,98 @@ class _OrderListScreenState extends State<OrderListScreen> {
           fontWeight: FontWeight.bold,
         ),
       ),
+    );
+  }
+
+  // =====================================================
+  // DETAIL ORDER (BOTTOM SHEET)
+  // =====================================================
+  void _showOrderDetail(OrderModel order) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            return SingleChildScrollView(
+              controller: controller,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    "Detail Pesanan",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  ...order.items.map((item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: Text(item.productName)),
+                            Text(
+                              "${item.quantity} x ${CurrencyFormatter.format(item.price)}",
+                            ),
+                          ],
+                        ),
+                      )),
+
+                  const Divider(height: 24),
+
+                  _priceRow("Total", order.totalAmount, isTotal: true),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _priceRow(String label, double value, {bool isTotal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        Text(
+          CurrencyFormatter.format(value),
+          style: TextStyle(
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            color: isTotal ? const Color(0xFF1E3A8A) : Colors.black,
+          ),
+        ),
+      ],
     );
   }
 

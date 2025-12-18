@@ -1,45 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfileBengkelScreen extends StatelessWidget {
-  const ProfileBengkelScreen({super.key});
+class SellerProfileScreen extends StatelessWidget {
+  const SellerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-
-      // ================= BODY =================
+      backgroundColor: const Color(0xFFF2F2F2),
       body: Stack(
         children: [
-          // ===== HEADER BIRU =====
+          // ================= HEADER =================
           Container(
-            height: 220,
+            height: 230,
             width: double.infinity,
             color: const Color(0xFF1E2E8F),
           ),
 
-          // ===== CONTENT =====
+          // ================= CONTENT =================
           SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 140),
+                const SizedBox(height: 150),
 
-                // ===== PROFILE CARD =====
+                // ================= PROFILE CARD =================
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
                       Container(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 70, 16, 20),
+                        padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
                           ],
@@ -55,62 +53,24 @@ class ProfileBengkelScreen extends StatelessWidget {
                               ),
                             ),
 
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 14),
 
-                            // ===== SALDO + ROLE =====
+                            // ===== SALDO / ROLE / KOIN =====
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                // BengkelPay
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      'BengkelPay',
-                                      style: TextStyle(
-                                        color: Colors.orange,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text('Rp1.000.000'),
-                                  ],
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: const [
+                                _InfoItem(
+                                  title: 'BengkelPay',
+                                  value: 'Rp1.000.000',
+                                  alignStart: true,
                                 ),
 
-                                // Role
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1E5BB8),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Text(
-                                    'Bengkel',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                                _RoleBadge(),
 
-                                // Koin
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.end,
-                                  children: const [
-                                    Text(
-                                      'Koin',
-                                      style: TextStyle(
-                                        color: Colors.orange,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text('5000'),
-                                  ],
+                                _InfoItem(
+                                  title: 'Koin',
+                                  value: '5000',
+                                  alignStart: false,
                                 ),
                               ],
                             ),
@@ -118,7 +78,7 @@ class ProfileBengkelScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // ===== AVATAR =====
+                      // ================= AVATAR =================
                       Positioned(
                         top: -55,
                         left: 0,
@@ -145,10 +105,7 @@ class ProfileBengkelScreen extends StatelessWidget {
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 18,
-                                  ),
+                                  child: const Icon(Icons.edit, size: 18),
                                 ),
                               ),
                             ],
@@ -161,56 +118,49 @@ class ProfileBengkelScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // ===== MENU CARD 1 =====
+                // ================= MENU CARD 1 =================
                 _MenuCard(
-                  children: const [
-                    _MenuItem(Icons.receipt_long, 'Riwayat Pesanan'),
-                    _Divider(),
-                    _MenuItem(Icons.lock_outline, 'PIN Saya'),
-                    _Divider(),
-                    _MenuItem(Icons.language, 'Alamat Saya'),
-                    _Divider(),
-                    _MenuItem(Icons.build, 'Riwayat Jasa'),
+                  children: [
+                    _MenuItem(Icons.receipt_long, 'Riwayat Pesanan', onTap: () {}),
+                    const _Divider(),
+                    _MenuItem(Icons.lock_outline, 'PIN Saya', onTap: () {}),
+                    const _Divider(),
+                    _MenuItem(Icons.language, 'Alamat Saya', onTap: () {}),
+                    const _Divider(),
+                    _MenuItem(Icons.build, 'Riwayat Jasa', onTap: () {}),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // ===== MENU CARD 2 =====
+                // ================= MENU CARD 2 =================
                 _MenuCard(
-                  children: const [
-                    _MenuItem(Icons.headset_mic, 'Customer Service'),
-                    _Divider(),
-                    _MenuItem(Icons.info_outline, 'Tentang Aplikasi'),
-                    _Divider(),
-                    _MenuItem(Icons.logout, 'Keluar'),
+                  children: [
+                    _MenuItem(Icons.headset_mic, 'Customer Service', onTap: () {}),
+                    const _Divider(),
+                    _MenuItem(Icons.info_outline, 'Tentang Aplikasi', onTap: () {}),
+                    const _Divider(),
+                    _MenuItem(
+                      Icons.logout,
+                      'Keluar',
+                      textColor: Colors.red,
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/login',
+                            (route) => false,
+                          );
+                        }
+                      },
+                    ),
                   ],
                 ),
 
-                const SizedBox(height: 100),
+                const SizedBox(height: 80),
               ],
             ),
-          ),
-        ],
-      ),
-
-      // ================= BOTTOM NAV =================
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF1E2E8F),
-        selectedItemColor: Colors.amber,
-        unselectedItemColor: Colors.white,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
           ),
         ],
       ),
@@ -218,8 +168,65 @@ class ProfileBengkelScreen extends StatelessWidget {
   }
 }
 
-// ================= WIDGET BANTUAN =================
+// ================= ROLE BADGE =================
+class _RoleBadge extends StatelessWidget {
+  const _RoleBadge();
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E5BB8),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: const Text(
+        'Bengkel',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
+// ================= INFO ITEM =================
+class _InfoItem extends StatelessWidget {
+  final String title;
+  final String value;
+  final bool alignStart;
+
+  const _InfoItem({
+    required this.title,
+    required this.value,
+    required this.alignStart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment:
+          alignStart ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.orange,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
+}
+
+// ================= MENU CARD =================
 class _MenuCard extends StatelessWidget {
   final List<Widget> children;
   const _MenuCard({required this.children});
@@ -239,25 +246,38 @@ class _MenuCard extends StatelessWidget {
   }
 }
 
+// ================= MENU ITEM =================
 class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
-  const _MenuItem(this.icon, this.title);
+  final VoidCallback onTap;
+  final Color? textColor;
+
+  const _MenuItem(
+    this.icon,
+    this.title, {
+    required this.onTap,
+    this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon),
+      leading: Icon(icon, color: textColor ?? Colors.black),
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: textColor ?? Colors.black,
+        ),
       ),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }
 
+// ================= DIVIDER =================
 class _Divider extends StatelessWidget {
   const _Divider();
 
