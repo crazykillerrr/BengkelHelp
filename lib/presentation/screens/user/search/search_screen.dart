@@ -52,69 +52,245 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 20),
             decoration: const BoxDecoration(
               color: Color(0xFF1E2BB8),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // LOGO
                 const Text(
                   'BENGKELMART',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 // SEARCH BAR
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _onSearch,
-                        decoration: InputDecoration(
-                          hintText: 'Klik untuk cari produk',
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearch,
+                          decoration: InputDecoration(
+                            hintText: 'Klik untuk cari produk',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                              size: 22,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF1E2BB8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 12),
+                    // CART ICON
+                    Stack(
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: Colors.white,
+                            size: 28,
                           ),
                         ),
-                        onPressed: () =>
-                            _onSearch(_searchController.text),
-                        child: const Text(
-                          'Cari',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: const Text(
+                              '1',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
           ),
+
+          // ================= BENGKEL PAY & KOIN SECTION =================
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // BengkelPay
+                Expanded(
+                  child: Column(
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Bengkel',
+                              style: TextStyle(
+                                color: Color(0xFFFFB800),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'Pay',
+                              style: TextStyle(
+                                color: Color(0xFF1E2BB8),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Rp 1.000.000',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Divider
+                Container(
+                  height: 40,
+                  width: 1,
+                  color: Colors.grey[300],
+                ),
+
+                // Koin
+                Expanded(
+                  child: Column(
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Ko',
+                              style: TextStyle(
+                                color: Color(0xFFFFB800),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'in',
+                              style: TextStyle(
+                                color: Color(0xFF1E2BB8),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        '5000',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ================= PRODUCT HEADER =================
+          Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  child: SizedBox(
+    height: 48,
+    width: double.infinity, // 
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        // TEKS DI TENGAH
+        const Text(
+          'Produk',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1E2BB8),
+          ),
+        ),
+
+        // ICON DI UJUNG KANAN
+        Positioned(
+          right: 0,
+          child: IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.filter_list,
+              color: Color(0xFF1E2BB8),
+              size: 28,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
 
           // ================= PRODUCT GRID =================
           Expanded(
@@ -123,11 +299,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 : products.isEmpty
                     ? const Center(child: Text('Produk tidak ditemukan'))
                     : GridView.builder(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.62,
+                          childAspectRatio: 0.68,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
                         ),
@@ -173,8 +349,8 @@ class _ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 6,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
@@ -189,11 +365,11 @@ class _ProductCard extends StatelessWidget {
               ),
               child: Image.network(
                 product.photoUrl,
-                height: 140,
+                height: 150,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  height: 140,
+                  height: 150,
                   color: Colors.grey[200],
                   child: const Icon(Icons.image),
                 ),
@@ -201,7 +377,7 @@ class _ProductCard extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -213,9 +389,10 @@ class _ProductCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
+                      height: 1.3,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
                   // PRICE
                   Text(
@@ -223,16 +400,16 @@ class _ProductCard extends StatelessWidget {
                     style: const TextStyle(
                       color: Color(0xFF1E2BB8),
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 15,
                     ),
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
 
-                  // RATING (DUMMY)
+                  // RATING
                   Row(
                     children: const [
-                      Icon(Icons.star, size: 14, color: Colors.orange),
+                      Icon(Icons.star, size: 14, color: Color(0xFFFFB800)),
                       SizedBox(width: 4),
                       Text(
                         '4.8 | 250+ terjual',
@@ -252,4 +429,3 @@ class _ProductCard extends StatelessWidget {
     );
   }
 }
-

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
-import '../../../navigation/app_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -77,10 +76,7 @@ class ProfileScreen extends StatelessWidget {
                                       color: Colors.white,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
-                                      Icons.edit,
-                                      size: 16,
-                                    ),
+                                    child: const Icon(Icons.edit, size: 16),
                                   ),
                                 ),
                               ],
@@ -103,11 +99,9 @@ class ProfileScreen extends StatelessWidget {
                             // ---------- SALDO + ROLE ----------
                             Row(
                               children: [
-                                // BengkelPay (LEFT)
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: const [
                                       Text(
                                         'BengkelPay',
@@ -127,8 +121,6 @@ class ProfileScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-
-                                // USER (CENTER)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 22, vertical: 8),
@@ -145,12 +137,9 @@ class ProfileScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-
-                                // Koin (RIGHT)
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: const [
                                       Text(
                                         'Koin',
@@ -199,17 +188,14 @@ class ProfileScreen extends StatelessWidget {
                                 _OrderItem(
                                   icon: Icons.inventory_2_outlined,
                                   label: 'Dikemas',
-                                  count: 2,
                                 ),
                                 _OrderItem(
                                   icon: Icons.local_shipping_outlined,
                                   label: 'Dikirim',
-                                  count: 4,
                                 ),
                                 _OrderItem(
                                   icon: Icons.star_border,
                                   label: 'Penilaian',
-                                  count: 3,
                                 ),
                               ],
                             ),
@@ -245,9 +231,9 @@ class ProfileScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                            builder: (_) => const OrderListScreen(),
+                              builder: (_) => const OrderListScreen(),
                             ),
-                           );
+                          );
                         },
                       ),
                       _MenuItem(
@@ -299,11 +285,8 @@ class ProfileScreen extends StatelessWidget {
                           );
 
                           if (confirm == true && context.mounted) {
-                            final walletProvider =
-                                Provider.of<WalletProvider>(context,
-                                    listen: false);
-                            walletProvider.clearData();
-
+                            Provider.of<WalletProvider>(context, listen: false)
+                                .clearData();
                             await authProvider.signOut();
                             if (context.mounted) {
                               Navigator.of(context)
@@ -329,50 +312,38 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// ================= WIDGET =================
+// ================= ORDER ITEM (ICON SAJA) =================
 
 class _OrderItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final int count;
 
   const _OrderItem({
     required this.icon,
     required this.label,
-    required this.count,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Stack(
-          children: [
-            Icon(icon, size: 28),
-            if (count > 0)
-              Positioned(
-                right: -6,
-                top: -6,
-                child: CircleAvatar(
-                  radius: 9,
-                  backgroundColor: Colors.blue,
-                  child: Text(
-                    '$count',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-          ],
+        Icon(
+          icon,
+          size: 28,
+          color: const Color(0xFF1E3A8A),
         ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
       ],
     );
   }
 }
+
+// ================= MENU ITEM =================
 
 class _MenuItem extends StatelessWidget {
   final IconData icon;
@@ -397,10 +368,7 @@ class _MenuItem extends StatelessWidget {
         border: Border.all(color: Colors.grey[300]!, width: 1),
       ),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: textColor ?? const Color(0xFF1E3A8A),
-        ),
+        leading: Icon(icon, color: textColor ?? const Color(0xFF1E3A8A)),
         title: Text(
           title,
           style: TextStyle(
@@ -409,10 +377,7 @@ class _MenuItem extends StatelessWidget {
             color: textColor ?? Colors.black87,
           ),
         ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: Colors.grey[400],
-        ),
+        trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
         onTap: onTap,
       ),
     );

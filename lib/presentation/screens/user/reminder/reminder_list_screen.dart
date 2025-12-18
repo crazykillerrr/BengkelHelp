@@ -182,37 +182,6 @@ class _ReminderListScreenState extends State<ReminderListScreen> {
         onPressed: () {},
         child: const Icon(Icons.add, size: 28),
       ),
-
-      // ================= NAVBAR =================
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF1B238F),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(26),
-            topRight: Radius.circular(26),
-          ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xFF1B238F),
-          selectedItemColor: const Color(0xFFFFC107),
-          unselectedItemColor: Colors.white70,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.storefront), label: ''),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.notifications), label: ''),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.person), label: ''),
-          ],
-        ),
-      ),
     );
   }
 
