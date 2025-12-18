@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/wallet_provider.dart';
+import '../../../../data/providers/order_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -285,8 +286,8 @@ class ProfileScreen extends StatelessWidget {
                           );
 
                           if (confirm == true && context.mounted) {
-                            Provider.of<WalletProvider>(context, listen: false)
-                                .clearData();
+                            context.read<OrderProvider>().clearLocal();
+                            context.read<WalletProvider>().clearData();
                             await authProvider.signOut();
                             if (context.mounted) {
                               Navigator.of(context)
