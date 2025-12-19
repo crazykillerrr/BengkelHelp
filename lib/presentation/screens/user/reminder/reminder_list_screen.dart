@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../navigation/app_router.dart';
+import 'reminder_detail_screen.dart';
 
 class ReminderListScreen extends StatefulWidget {
   const ReminderListScreen({super.key});
@@ -202,10 +203,17 @@ class _ReminderListScreenState extends State<ReminderListScreen> {
         ],
       ),
 
-      // ================= FAB =================
+      // ================= FAB (TAMBAHAN SAJA) =================
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF1B238F),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ReminderDetailScreen(),
+            ),
+          );
+        },
         child: const Icon(Icons.add, size: 28),
       ),
     );
