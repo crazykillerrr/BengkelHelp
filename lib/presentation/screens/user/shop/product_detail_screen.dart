@@ -95,160 +95,226 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // Product Info
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.all(AppTheme.spacingL),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppTheme.radiusXL),
-                  topRight: Radius.circular(AppTheme.radiusXL),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(28),
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Product Name and Price
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.product.name,
-                          style: AppTheme.h2.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        currencyFormat.format(widget.product.price),
-                        style: AppTheme.h2.copyWith(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: AppTheme.spacingM),
-
-                  // Rating and Stock
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: AppTheme.accentColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: AppTheme.spacingXS),
-                      Text(
-                        '4.5 (120 ulasan)',
-                        style: AppTheme.bodyMedium,
-                      ),
-                      const SizedBox(width: AppTheme.spacingM),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppTheme.spacingS,
-                          vertical: AppTheme.spacingXS,
-                        ),
-                        decoration: BoxDecoration(
-                          color: widget.product.stock > 0
-                              ? AppTheme.successColor
-                                  .withAlpha((0.1 * 255).round())
-                              : AppTheme.errorColor
-                                  .withAlpha((0.1 * 255).round()),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusS),
-                        ),
-                        child: Text(
-                          widget.product.stock > 0
-                              ? 'Stok: ${widget.product.stock}'
-                              : 'Stok Habis',
-                          style: AppTheme.bodySmall.copyWith(
-                            color: widget.product.stock > 0
-                                ? AppTheme.successColor
-                                : AppTheme.errorColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: AppTheme.spacingL),
-
-                  // Description
+                  // ================= NAME =================
                   Text(
-                    'Deskripsi',
+                    widget.product.name,
+                    style: AppTheme.h2.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ================= PRICE =================
+                  Text(
+                    currencyFormat.format(widget.product.price),
+                    style: AppTheme.h1.copyWith(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ================= BADGES =================
+                  Row(
+                    children: [
+                      _InfoBadge(
+                        icon: Icons.star,
+                        label: '4.5',
+                        color: AppTheme.accentColor,
+                      ),
+                      const SizedBox(width: 10),
+                      _InfoBadge(
+                        icon: Icons.inventory_2,
+                        label: widget.product.stock > 0
+                            ? 'Stok ${widget.product.stock}'
+                            : 'Stok Habis',
+                        color: widget.product.stock > 0
+                            ? AppTheme.successColor
+                            : AppTheme.errorColor,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // ================= DESCRIPTION =================
+                  Text(
+                    'Deskripsi Produk',
                     style: AppTheme.h3,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: 10),
                   Text(
                     widget.product.description,
                     style: AppTheme.bodyMedium.copyWith(
                       color: AppTheme.textSecondary,
+                      height: 1.6,
                     ),
                   ),
 
-                  const SizedBox(height: AppTheme.spacingL),
+                  const SizedBox(height: 28),
 
-                  // Quantity Selector
+                  // ================= QUANTITY =================
                   Text(
                     'Jumlah',
                     style: AppTheme.h3,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _quantity > 1
-                            ? () => setState(() => _quantity--)
-                            : null,
-                        icon: const Icon(Icons.remove),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey[200],
-                          disabledBackgroundColor: Colors.grey[100],
-                        ),
-                      ),
-                      const SizedBox(width: AppTheme.spacingM),
-                      Text(
-                        _quantity.toString(),
-                        style: AppTheme.h3,
-                      ),
-                      const SizedBox(width: AppTheme.spacingM),
-                      IconButton(
-                        onPressed: _quantity < widget.product.stock
-                            ? () => setState(() => _quantity++)
-                            : null,
-                        icon: const Icon(Icons.add),
-                        style: IconButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.grey[100],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: AppTheme.spacingXL),
-
-                  // Add to Cart Button
-                  ElevatedButton(
-                    onPressed: widget.product.stock > 0 ? _addToCart : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                      ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
                     ),
-                    child: const Text('Tambah ke Keranjang'),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _QtyButton(
+                          icon: Icons.remove,
+                          onTap: _quantity > 1
+                              ? () => setState(() => _quantity--)
+                              : null,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            _quantity.toString(),
+                            style: AppTheme.h3,
+                          ),
+                        ),
+                        _QtyButton(
+                          icon: Icons.add,
+                          filled: true,
+                          onTap: _quantity < widget.product.stock
+                              ? () => setState(() => _quantity++)
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: AppTheme.spacingL),
                 ],
               ),
             ),
           ),
         ],
+      ),
+
+      // ================= BOTTOM ACTION =================
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 18,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SizedBox(
+          height: 56,
+          child: ElevatedButton(
+            onPressed: widget.product.stock > 0 ? _addToCart : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            child: const Text('Tambah ke Troli'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/* ================= UI HELPER ================= */
+
+class _InfoBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _InfoBadge({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QtyButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool filled;
+
+  const _QtyButton({
+    required this.icon,
+    this.onTap,
+    this.filled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: filled ? AppTheme.primaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: filled ? null : Border.all(color: Colors.grey[300]!),
+        ),
+        child: Icon(
+          icon,
+          color: filled ? Colors.white : Colors.black87,
+          size: 20,
+        ),
       ),
     );
   }

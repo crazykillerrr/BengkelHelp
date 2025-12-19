@@ -57,20 +57,23 @@ class SellerProfileScreen extends StatelessWidget {
 
                             // ===== SALDO / ROLE / KOIN =====
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: const [
-                                _InfoItem(
-                                  title: 'BengkelPay',
-                                  value: 'Rp1.000.000',
-                                  alignStart: true,
+                                Expanded(
+                                  child: _InfoItem(
+                                    title: 'BengkelPay',
+                                    value: 'Rp1.000.000',
+                                    alignStart: true,
+                                  ),
                                 ),
 
                                 _RoleBadge(),
 
-                                _InfoItem(
-                                  title: 'Koin',
-                                  value: '5000',
-                                  alignStart: false,
+                                Expanded(
+                                  child: _InfoItem(
+                                    title: 'Koin',
+                                    value: '5000',
+                                    alignStart: false,
+                                  ),
                                 ),
                               ],
                             ),
@@ -177,7 +180,7 @@ class _RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E5BB8),
+        color: const Color(0xFF1E2E8F),
         borderRadius: BorderRadius.circular(30),
       ),
       child: const Text(
@@ -212,7 +215,7 @@ class _InfoItem extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.orange,
+            color: Color(0xFF1E2E8F), // ✅ NAVY (SAMAN DENGAN USER)
             fontWeight: FontWeight.bold,
           ),
         ),

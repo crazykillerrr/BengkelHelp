@@ -9,6 +9,9 @@ import '../search/search_screen.dart';
 import '../reminder/reminder_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../../navigation/app_router.dart';
+import 'chat_screen.dart';// 
+import 'chat_list_screen.dart';
+
 
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
@@ -148,9 +151,14 @@ class _UserDashboard extends StatelessWidget {
                               onPressed: () {},
                               icon: const Icon(Icons.notifications_outlined, color: Colors.white),
                             ),
-                            IconButton(
+                           IconButton(
                               onPressed: () {
-                                Navigator.of(context).pushNamed(AppRouter.walletScreen);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ChatListScreen(),
+                                  ),
+                                );
                               },
                               icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
                             ),
@@ -202,7 +210,7 @@ class _UserDashboard extends StatelessWidget {
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.black87,
+                                                color: Color(0xFF1E3A8A),
                                               ),
                                             ),
                                           ],
@@ -255,7 +263,7 @@ class _UserDashboard extends StatelessWidget {
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
+                                              color: Color(0xFF1E3A8A),
                                             ),
                                           ),
                                         ],
@@ -307,7 +315,7 @@ class _UserDashboard extends StatelessWidget {
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
+                                            color: Color(0xFF1E3A8A),
                                           ),
                                         ),
                                       ],

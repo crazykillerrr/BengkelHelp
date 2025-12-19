@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../data/providers/product_provider.dart';
+import '../../../../data/providers/cart_provider.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../screens/user/shop/product_detail_screen.dart';
+import '../../../screens/user/shop/cart_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -40,17 +42,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ProductProvider>();
+    final productProvider = context.watch<ProductProvider>();
     final products = _searchController.text.isEmpty
-        ? provider.products
+        ? productProvider.products
         : _searchResults;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-
-      // ================= HEADER =================
       body: Column(
         children: [
+          // ================= HEADER =================
           Container(
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 20),
             decoration: const BoxDecoration(
@@ -59,7 +60,6 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // LOGO
                 const Text(
                   'BENGKELMART',
                   style: TextStyle(
@@ -71,7 +71,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // SEARCH BAR
+                // ================= SEARCH BAR + CART =================
                 Row(
                   children: [
                     Expanded(
@@ -109,42 +109,56 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // CART ICON
-                    Stack(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 18,
-                              minHeight: 18,
-                            ),
-                            child: const Text(
-                              '1',
-                              style: TextStyle(
+
+                    // ================= CART ICON (DINAMIS) =================
+                    Consumer<CartProvider>(
+                      builder: (context, cartProvider, _) {
+                        return Stack(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const CartScreen(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.shopping_cart_outlined,
                                 color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                size: 28,
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                          ),
-                        ),
-                      ],
+
+                            if (cartProvider.itemCount > 0)
+                              Positioned(
+                                right: 6,
+                                top: 6,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 18,
+                                    minHeight: 18,
+                                  ),
+                                  child: Text(
+                                    cartProvider.itemCount.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -152,7 +166,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // ================= BENGKEL PAY & KOIN SECTION =================
+          // ================= WALLET INFO =================
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
@@ -169,84 +183,43 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             child: Row(
               children: [
-                // BengkelPay
                 Expanded(
                   child: Column(
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Bengkel',
-                              style: TextStyle(
-                                color: Color(0xFFFFB800),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Pay',
-                              style: TextStyle(
-                                color: Color(0xFF1E2BB8),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                    children: const [
+                      Text(
+                        'BengkelPay',
+                        style: TextStyle(
+                          color: Color(0xFFFFB800),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         'Rp 1.000.000',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                 ),
-
-                // Divider
                 Container(
                   height: 40,
                   width: 1,
                   color: Colors.grey[300],
                 ),
-
-                // Koin
                 Expanded(
                   child: Column(
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Ko',
-                              style: TextStyle(
-                                color: Color(0xFFFFB800),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'in',
-                              style: TextStyle(
-                                color: Color(0xFF1E2BB8),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                    children: const [
+                      Text(
+                        'Koin',
+                        style: TextStyle(
+                          color: Color(0xFFFFB800),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         '5000',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -255,46 +228,41 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // ================= PRODUCT HEADER =================
+          // ================= TITLE =================
           Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16),
-  child: SizedBox(
-    height: 48,
-    width: double.infinity, // 
-    child: Stack(
-      alignment: Alignment.center,
-      children: [
-        // TEKS DI TENGAH
-        const Text(
-          'Produk',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E2BB8),
-          ),
-        ),
-
-        // ICON DI UJUNG KANAN
-        Positioned(
-          right: 0,
-          child: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.filter_list,
-              color: Color(0xFF1E2BB8),
-              size: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 48,
+              width: double.infinity,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Text(
+                    'Produk',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E2BB8),
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.filter_list,
+                        color: Color(0xFF1E2BB8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  ),
-),
-
 
           // ================= PRODUCT GRID =================
           Expanded(
-            child: provider.isLoading
+            child: productProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : products.isEmpty
                     ? const Center(child: Text('Produk tidak ditemukan'))
@@ -358,11 +326,9 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // IMAGE
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-              ),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: Image.network(
                 product.photoUrl,
                 height: 150,
@@ -375,13 +341,11 @@ class _ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // NAME
                   Text(
                     product.name,
                     maxLines: 2,
@@ -389,34 +353,26 @@ class _ProductCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      height: 1.3,
                     ),
                   ),
                   const SizedBox(height: 8),
-
-                  // PRICE
                   Text(
                     currencyFormat.format(product.price),
                     style: const TextStyle(
                       color: Color(0xFF1E2BB8),
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
-                  // RATING
                   Row(
                     children: const [
-                      Icon(Icons.star, size: 14, color: Color(0xFFFFB800)),
+                      Icon(Icons.star,
+                          size: 14, color: Color(0xFFFFB800)),
                       SizedBox(width: 4),
                       Text(
                         '4.8 | 250+ terjual',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey,
-                        ),
+                        style:
+                            TextStyle(fontSize: 11, color: Colors.grey),
                       ),
                     ],
                   ),
