@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
 
-class DummyChatScreen extends StatelessWidget {
-  const DummyChatScreen({super.key});
+/* ================= MODEL ================= */
+
+class ChatMessage {
+  final String text;
+  final bool isMe;
+
+  ChatMessage({required this.text, required this.isMe});
+}
+
+/* ================= CHAT SCREEN ================= */
+
+class ChatScreen extends StatelessWidget {
+  final String bengkelName;
+  final String imageUrl;
+  final List<ChatMessage> messages;
+
+  const ChatScreen({
+    super.key,
+    required this.bengkelName,
+    required this.imageUrl,
+    required this.messages,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -9,25 +29,15 @@ class DummyChatScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E3A8A),
-        title: const Row(
+        title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://i.imgur.com/BoN9kdC.png',
-              ),
-            ),
-            SizedBox(width: 10),
+            CircleAvatar(backgroundImage: NetworkImage(imageUrl)),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Bengkel Jaya Motor',
-                  style: TextStyle(fontSize: 14),
-                ),
-                Text(
-                  'Online',
-                  style: TextStyle(fontSize: 11),
-                ),
+                Text(bengkelName, style: const TextStyle(fontSize: 14)),
+                const Text('Online', style: TextStyle(fontSize: 11)),
               ],
             ),
           ],
@@ -36,49 +46,47 @@ class DummyChatScreen extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              children: const [
-                _ChatBubble(
-                  message: 'Halo kak, ada yang bisa kami bantu?',
-                  isMe: false,
-                ),
-                _ChatBubble(
-                  message: 'Motor saya mogok, bisa dicek?',
-                  isMe: true,
-                ),
-                _ChatBubble(
-                  message: 'Bisa kak, silakan share lokasi ya',
-                  isMe: false,
-                ),
-              ],
+              itemCount: messages.length,
+              itemBuilder: (_, i) {
+                final msg = messages[i];
+                return _ChatBubble(
+                  message: msg.text,
+                  isMe: msg.isMe,
+                );
+              },
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            color: Colors.white,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Ketik pesan...',
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
+          _chatInput(),
+        ],
+      ),
+    );
+  }
+
+  Widget _chatInput() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      color: Colors.white,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Ketik pesan...',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
                 ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: const Color(0xFF1E3A8A),
-                  child: const Icon(Icons.send, color: Colors.white),
-                ),
-              ],
+              ),
             ),
+          ),
+          const SizedBox(width: 8),
+          const CircleAvatar(
+            backgroundColor: Color(0xFF1E3A8A),
+            child: Icon(Icons.send, color: Colors.white),
           ),
         ],
       ),
@@ -86,7 +94,7 @@ class DummyChatScreen extends StatelessWidget {
   }
 }
 
-// ================= CHAT BUBBLE =================
+/* ================= CHAT BUBBLE ================= */
 
 class _ChatBubble extends StatelessWidget {
   final String message;
