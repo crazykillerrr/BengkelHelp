@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/providers/auth_provider.dart';
 import '../../../../data/providers/order_provider.dart';
 import '../../../../data/models/order_model.dart';
-
 
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({Key? key}) : super(key: key);
@@ -35,28 +33,24 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     final orderProvider = Provider.of<OrderProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF5F5F5),
       body: RefreshIndicator(
         onRefresh: _loadDashboardData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: 16),
               _buildWalletCard(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildStatusPesanan(orderProvider),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               _buildMenuCepat(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               _buildMisiBengkel(),
-              const SizedBox(height: 24),
-
-              // ===== TAMBAHAN KELOLA BENGKEL =====
+              const SizedBox(height: 28),
               _buildKelolaBengkel(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -67,12 +61,12 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   // ================= HEADER =================
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 50, 16, 24),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+      padding: const EdgeInsets.fromLTRB(20, 54, 20, 24),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E2E8F),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
         ),
       ),
       child: Row(
@@ -82,7 +76,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
             "BENGKELHELP",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
@@ -90,10 +84,10 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           Row(
             children: const [
               Icon(Icons.notifications_none, color: Colors.white),
-              SizedBox(width: 12),
-              Icon(Icons.headset_mic_outlined, color: Colors.white),
+              SizedBox(width: 14),
+              Icon(Icons.chat_bubble_outline, color: Colors.white),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -101,64 +95,89 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
 
   // ================= WALLET =================
   Widget _buildWalletCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-            )
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _walletItem("BengkelPay", "Rp1.000.000"),
-            _divider(),
-            _walletTopUp(),
-            _divider(),
-            _walletItem("Koin", "5000"),
-          ],
+    return Transform.translate(
+      offset: const Offset(0, -18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              _walletItem("BengkelPay", "Rp1.000.000"),
+              _divider(),
+              _walletTopUp(),
+              _divider(),
+              _walletItem("Koin", "5000"),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _walletItem(String title, String value) {
-    return Column(
-      children: [
-        Text(title,
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            title,
             style: const TextStyle(
-                color: Colors.orange, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+              color: Color(0xFFFFB703),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _walletTopUp() {
-    return Column(
-      children: const [
-        Text("TopUp",
-            style:
-                TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-        SizedBox(height: 6),
-        CircleAvatar(
-          radius: 14,
-          backgroundColor: AppColors.primary,
-          child: Icon(Icons.add, size: 16, color: Colors.white),
-        )
-      ],
+    return Expanded(
+      child: Column(
+        children: const [
+          Text(
+            "TopUp",
+            style: TextStyle(
+              color: Color(0xFFFFB703),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 6),
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: Color(0xFF1E2E8F),
+            child: Icon(Icons.add, size: 18, color: Colors.white),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _divider() {
-    return Container(width: 1, height: 40, color: Colors.grey[300]);
+    return Container(
+      width: 1,
+      height: 44,
+      color: Colors.grey[300],
+    );
   }
 
   // ================= STATUS PESANAN =================
@@ -184,10 +203,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 },
                 child: const Text(
                   "Riwayat Pesanan ›",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(color: Colors.grey),
                 ),
               ),
             ],
@@ -208,13 +224,37 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Widget _statusItem(String count, String label) {
-    return Column(
-      children: [
-        Text(count,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
+    return Container(
+      width: 78,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
     );
   }
 
@@ -224,29 +264,12 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _menuItem(Icons.inventory_2, "Produk"),
-          _menuItem(Icons.account_balance_wallet, "Penghasilan"),
-          _menuItem(Icons.bar_chart, "Statistik"),
+        children: const [
+          _MenuCepatItem(Icons.inventory_2, "Produk"),
+          _MenuCepatItem(Icons.account_balance_wallet, "Penghasilan"),
+          _MenuCepatItem(Icons.bar_chart, "Statistik"),
         ],
       ),
-    );
-  }
-
-  Widget _menuItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: Colors.white),
-        ),
-        const SizedBox(height: 6),
-        Text(label),
-      ],
     );
   }
 
@@ -258,7 +281,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
           children: [
@@ -267,15 +290,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               children: const [
                 Text(
                   "Misi Bengkel",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  "Selengkapnya >",
-                  style: TextStyle(color: Colors.grey),
-                ),
+                Text("Selengkapnya ›", style: TextStyle(color: Colors.grey)),
               ],
             ),
             const SizedBox(height: 16),
@@ -289,47 +306,46 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Widget _misiItem(String title, int current, int total, String buttonText) {
-    double progress = current / total;
-    bool isCompleted = buttonText == "Selesai";
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFEDEDED),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
               style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 8),
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: LinearProgressIndicator(
-                  value: progress,
-                  color: AppColors.primary,
-                  backgroundColor: Colors.grey[300],
+                  value: current / total,
+                  color: const Color(0xFF1E2E8F),
+                  backgroundColor: Colors.white,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text("$current/$total",
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              const SizedBox(width: 8),
+                  style: const TextStyle(fontSize: 12)),
+              const SizedBox(width: 10),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isCompleted ? Colors.grey : AppColors.primary,
+                  color: const Color(0xFF1E2E8F),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(buttonText,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold)),
+                child: Text(
+                  buttonText,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -338,7 +354,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     );
   }
 
-  // ================= KELOLA BENGKEL (TAMBAHAN) =================
+  // ================= KELOLA BENGKEL =================
   Widget _buildKelolaBengkel() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -346,7 +362,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,31 +372,21 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-           Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    _KelolaItem(
-      icon: Icons.store,
-      label: "Profil",
-       onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.manageBengkel);
-                },
-    ),
-    const _KelolaItem(
-      icon: Icons.access_time,
-      label: "Operasional",
-    ),
-    const _KelolaItem(
-      icon: Icons.people,
-      label: "Montir",
-    ),
-    const _KelolaItem(
-      icon: Icons.inventory_2,
-      label: "Produk",
-    ),
-  ],
-),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _KelolaItem(
+                  icon: Icons.store,
+                  label: "Profil",
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.manageBengkel);
+                  },
+                ),
+                const _KelolaItem(icon: Icons.access_time, label: "Operasional"),
+                const _KelolaItem(icon: Icons.people, label: "Montir"),
+                const _KelolaItem(icon: Icons.inventory_2, label: "Produk"),
+              ],
+            ),
           ],
         ),
       ),
@@ -388,7 +394,33 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 }
 
-// ================= ITEM KELOLA =================
+// ================= MENU CEPAT ITEM =================
+class _MenuCepatItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MenuCepatItem(this.icon, this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E2E8F),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: Colors.white, size: 28),
+        ),
+        const SizedBox(height: 8),
+        Text(label),
+      ],
+    );
+  }
+}
+
+// ================= KELOLA ITEM =================
 class _KelolaItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -409,22 +441,22 @@ class _KelolaItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: const Color(0xFFE8EBFF),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 26),
+            child: Icon(
+              icon,
+              color: const Color(0xFF1E2E8F),
+              size: 26,
+            ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 12),
           ),
         ],
       ),
     );
   }
 }
-
