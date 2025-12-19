@@ -114,11 +114,11 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           ),
           child: Row(
             children: [
-              _walletItem("BengkelPay", "Rp1.000.000"),
+              _bengkelPayItem("Rp1.000.000"),
               _divider(),
-              _walletTopUp(),
+              _topUpItem(),
               _divider(),
-              _walletItem("Koin", "5000"),
+              _coinItem("5000"),
             ],
           ),
         ),
@@ -126,43 +126,70 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     );
   }
 
-  Widget _walletItem(String title, String value) {
+  Widget _bengkelPayItem(String value) {
     return Expanded(
       child: Column(
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFFFFB703),
-              fontWeight: FontWeight.bold,
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Bengkel',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFA500),
+                  ),
+                ),
+                TextSpan(
+                  text: 'Pay',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E2E8F),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _walletTopUp() {
+  Widget _topUpItem() {
     return Expanded(
       child: Column(
-        children: const [
-          Text(
-            "TopUp",
-            style: TextStyle(
-              color: Color(0xFFFFB703),
-              fontWeight: FontWeight.bold,
+        children: [
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Top',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFA500),
+                  ),
+                ),
+                TextSpan(
+                  text: 'Up',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E2E8F),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 6),
-          CircleAvatar(
+          const SizedBox(height: 6),
+          const CircleAvatar(
             radius: 16,
             backgroundColor: Color(0xFF1E2E8F),
             child: Icon(Icons.add, size: 18, color: Colors.white),
@@ -172,12 +199,44 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     );
   }
 
-  Widget _divider() {
-    return Container(
-      width: 1,
-      height: 44,
-      color: Colors.grey[300],
+  Widget _coinItem(String value) {
+    return Expanded(
+      child: Column(
+        children: [
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Ko',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFA500),
+                  ),
+                ),
+                TextSpan(
+                  text: 'in',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E2E8F),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _divider() {
+    return Container(width: 1, height: 44, color: Colors.grey[300]);
   }
 
   // ================= STATUS PESANAN =================
@@ -240,19 +299,13 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            count,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(count,
+              style:
+              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );
@@ -288,11 +341,11 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text(
-                  "Misi Bengkel",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text("Selengkapnya ›", style: TextStyle(color: Colors.grey)),
+                Text("Misi Bengkel",
+                    style:
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text("Selengkapnya ›",
+                    style: TextStyle(color: Colors.grey)),
               ],
             ),
             const SizedBox(height: 16),
@@ -367,10 +420,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Kelola Bengkel",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text("Kelola Bengkel",
+                style:
+                TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -451,10 +503,7 @@ class _KelolaItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-          ),
+          Text(label, style: const TextStyle(fontSize: 12)),
         ],
       ),
     );
