@@ -44,16 +44,9 @@ class SellerProfileScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            // ===== NAME =====
-                            const Text(
-                              'Aikuu Bengkel',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            // ❌ NAMA DIHAPUS
 
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 8),
 
                             // ===== SALDO / ROLE / KOIN =====
                             Row(
@@ -153,7 +146,7 @@ class SellerProfileScreen extends StatelessWidget {
                           Navigator.pushNamedAndRemoveUntil(
                             context,
                             '/login',
-                            (route) => false,
+                                (route) => false,
                           );
                         }
                       },
@@ -210,12 +203,12 @@ class _InfoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment:
-          alignStart ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      alignStart ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF1E2E8F), // ✅ NAVY (SAMAN DENGAN USER)
+            color: Color(0xFF1E2E8F),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -257,11 +250,11 @@ class _MenuItem extends StatelessWidget {
   final Color? textColor;
 
   const _MenuItem(
-    this.icon,
-    this.title, {
-    required this.onTap,
-    this.textColor,
-  });
+      this.icon,
+      this.title, {
+        required this.onTap,
+        this.textColor,
+      });
 
   @override
   Widget build(BuildContext context) {
