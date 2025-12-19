@@ -11,9 +11,8 @@ import '../management/user_management_screen.dart';
 import '../report/revenue_report_screen.dart';
 import '../report/activity_report_screen.dart';
 
-
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  const AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -31,91 +30,110 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> _loadDashboardData() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      // Load statistics from Firestore
-      final usersSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .get();
-      
-      final bengkelSnapshot = await FirebaseFirestore.instance
-          .collection('bengkel')
-          .get();
-      
-      final productsSnapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .get();
-      
-      final ordersSnapshot = await FirebaseFirestore.instance
-          .collection('orders')
-          .get();
-      
-      final transactionsSnapshot = await FirebaseFirestore.instance
+      final users = await FirebaseFirestore.instance.collection('users').get();
+      final bengkel =
+      await FirebaseFirestore.instance.collection('bengkel').get();
+      final products =
+      await FirebaseFirestore.instance.collection('products').get();
+      final orders =
+      await FirebaseFirestore.instance.collection('orders').get();
+      final transactions = await FirebaseFirestore.instance
           .collection('transactions')
           .where('status', isEqualTo: 'success')
           .get();
 
-      // Calculate statistics
-      final totalUsers = usersSnapshot.docs.length;
-      final totalBengkel = bengkelSnapshot.docs.length;
-      final totalProducts = productsSnapshot.docs.length;
-      final totalOrders = ordersSnapshot.docs.length;
-      
-      // Pending verifications
-      final pendingBengkel = bengkelSnapshot.docs
-          .where((doc) => doc.data()['status'] == 'pending')
-          .length;
-      final pendingProducts = productsSnapshot.docs
-          .where((doc) => doc.data()['status'] == 'pending')
-          .length;
-      
-      // Revenue
-      double totalRevenue = 0;
-      for (var doc in transactionsSnapshot.docs) {
-        totalRevenue += (doc.data()['amount'] ?? 0).toDouble();
+      double revenue = 0;
+      for (var doc in transactions.docs) {
+        revenue += (doc.data()['amount'] ?? 0).toDouble();
       }
 
       setState(() {
         _stats = {
-          'totalUsers': totalUsers,
-          'totalBengkel': totalBengkel,
-          'totalProducts': totalProducts,
-          'totalOrders': totalOrders,
-          'pendingBengkel': pendingBengkel,
-          'pendingProducts': pendingProducts,
-          'totalRevenue': totalRevenue,
+          'totalUsers': users.docs.length,
+          'totalBengkel': bengkel.docs.length,
+          'totalProducts': products.docs.length,
+          'totalOrders': orders.docs.length,
+          'pendingBengkel':
+          bengkel.docs.where((e) => e['status'] == 'pending').length,
+          'pendingProducts':
+          products.docs.where((e) => e['status'] == 'pending').length,
+          'revenue': revenue,
         };
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       setState(() => _isLoading = false);
-      print('Error loading dashboard: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FA),
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        elevation: 0,
         backgroundColor: AppColors.primary,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Admin Dashboard',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'BengkelHelp Control Panel',
+              style: TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // Show notifications
-            },
+            onPressed: () {},
           ),
+
+          // ================= LOGOUT AMAN =================
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              final authProvider = Provider.of<AuthProvider>(
-                context,
-                listen: false,
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Konfirmasi Logout'),
+                  content: const Text(
+                    'Apakah Anda yakin ingin keluar dari akun admin?\n\n'
+                        'Semua data akan tetap tersimpan.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                      child: const Text('Keluar'),
+                    ),
+                  ],
+                ),
               );
-              await authProvider.signOut();
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
+
+              if (confirm == true) {
+                final auth =
+                Provider.of<AuthProvider>(context, listen: false);
+
+                await auth.signOut();
+
+                if (!mounted) return;
+
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  AppRoutes.login,
+                      (route) => false,
+                );
+              }
             },
           ),
         ],
@@ -125,66 +143,49 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Welcome Section
-                    _buildWelcomeCard(),
-                    const SizedBox(height: 24),
-                    
-                    // Alerts Section
-                    if ((_stats['pendingBengkel'] ?? 0) > 0 ||
-                        (_stats['pendingProducts'] ?? 0) > 0)
-                      _buildAlertsSection(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Statistics Section
-                    const Text(
-                      'Statistik Aplikasi',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildStatisticsGrid(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Quick Actions
-                    const Text(
-                      'Aksi Cepat',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildQuickActions(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Reports Section
-                    const Text(
-                      'Laporan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildReportsSection(),
-                  ],
-                ),
-              ),
+          padding: const EdgeInsets.all(16),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _welcomeCard(),
+              const SizedBox(height: 24),
+
+              if ((_stats['pendingBengkel'] ?? 0) > 0 ||
+                  (_stats['pendingProducts'] ?? 0) > 0)
+                _alertSection(),
+
+              const SizedBox(height: 24),
+
+              const Text('Statistik',
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _statGrid(),
+
+              const SizedBox(height: 24),
+              const Text('Aksi Cepat',
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _quickActions(),
+
+              const SizedBox(height: 24),
+              const Text('Laporan',
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _reportSection(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildWelcomeCard() {
+  /* ================= UI ================= */
+
+  Widget _welcomeCard() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -192,84 +193,65 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 30,
+        children: const [
+          CircleAvatar(
+            radius: 28,
             backgroundColor: Colors.white,
-            child: Icon(
-              Icons.admin_panel_settings,
-              size: 32,
-              color: AppColors.primary,
-            ),
+            child: Icon(Icons.admin_panel_settings,
+                size: 30, color: AppColors.primary),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selamat Datang, Admin!',
+          SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Selamat Datang',
+                  style: TextStyle(color: Colors.white70)),
+              SizedBox(height: 4),
+              Text('Administrator BengkelHelp',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'BengkelHelp Control Panel',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold)),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAlertsSection() {
+  Widget _alertSection() {
     return Column(
       children: [
         if ((_stats['pendingBengkel'] ?? 0) > 0)
-          _buildAlertCard(
+          _alertCard(
             icon: Icons.store,
             title: 'Bengkel Menunggu Verifikasi',
             count: _stats['pendingBengkel'],
-            color: AppColors.warning,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const BengkelVerificationScreen(),
-                ),
-              );
-            },
+            color: Colors.orange,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const BengkelVerificationScreen()),
+            ),
           ),
         const SizedBox(height: 12),
         if ((_stats['pendingProducts'] ?? 0) > 0)
-          _buildAlertCard(
+          _alertCard(
             icon: Icons.inventory,
             title: 'Produk Menunggu Verifikasi',
             count: _stats['pendingProducts'],
-            color: AppColors.secondary,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ProductVerificationScreen(),
-                ),
-              );
-            },
+            color: Colors.blue,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const ProductVerificationScreen()),
+            ),
           ),
       ],
     );
   }
 
-  Widget _buildAlertCard({
+  Widget _alertCard({
     required IconData icon,
     required String title,
     required int count,
@@ -278,327 +260,232 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 24),
+            CircleAvatar(
+              backgroundColor: color.withOpacity(0.2),
+              child: Icon(icon, color: color),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
-                  Text(
-                    '$count item',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
+                  Text('$count item',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: color)),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: color,
-            ),
+            const Icon(Icons.chevron_right),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatisticsGrid() {
+  Widget _statGrid() {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.3,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.2,
       children: [
-        _buildStatCard(
-          icon: Icons.people,
-          label: 'Total Users',
-          value: '${_stats['totalUsers'] ?? 0}',
-          color: Colors.blue,
-        ),
-        _buildStatCard(
-          icon: Icons.store,
-          label: 'Total Bengkel',
-          value: '${_stats['totalBengkel'] ?? 0}',
-          color: Colors.purple,
-        ),
-        _buildStatCard(
-          icon: Icons.inventory,
-          label: 'Total Produk',
-          value: '${_stats['totalProducts'] ?? 0}',
-          color: Colors.orange,
-        ),
-        _buildStatCard(
-          icon: Icons.shopping_bag,
-          label: 'Total Orders',
-          value: '${_stats['totalOrders'] ?? 0}',
-          color: Colors.green,
-        ),
+        _statCard(Icons.people, 'Users', _stats['totalUsers'], Colors.blue),
+        _statCard(Icons.store, 'Bengkel', _stats['totalBengkel'], Colors.purple),
+        _statCard(Icons.inventory, 'Produk', _stats['totalProducts'], Colors.orange),
+        _statCard(Icons.shopping_bag, 'Orders', _stats['totalOrders'], Colors.green),
       ],
     );
   }
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
+  Widget _statCard(
+      IconData icon, String label, int value, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Icon(icon, color: color, size: 36),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+          Positioned(
+            right: -10,
+            top: -10,
+            child: Icon(icon, size: 80, color: color.withOpacity(0.15)),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: color),
+              const Spacer(),
+              Text('$value',
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: color)),
+              Text(label, style: const TextStyle(fontSize: 12)),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _quickActions() {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.5,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.4,
       children: [
-        _buildActionCard(
-          icon: Icons.verified_user,
-          label: 'Verifikasi Bengkel',
-          color: AppColors.primary,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const BengkelVerificationScreen(),
-              ),
-            );
-          },
-        ),
-        _buildActionCard(
-          icon: Icons.check_circle,
-          label: 'Verifikasi Produk',
-          color: AppColors.secondary,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProductVerificationScreen(),
-              ),
-            );
-          },
-        ),
-        _buildActionCard(
-          icon: Icons.people_alt,
-          label: 'Kelola Users',
-          color: Colors.blue,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const UserManagementScreen(),
-              ),
-            );
-          },
-        ),
-        _buildActionCard(
-          icon: Icons.store_mall_directory,
-          label: 'Kelola Bengkel',
-          color: Colors.purple,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProductVerificationScreen(),
-              ),
-            );
-          },
-        ),
+        _actionCard(Icons.verified_user, 'Verifikasi Bengkel',
+            AppColors.primary, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const BengkelVerificationScreen()),
+              );
+            }),
+        _actionCard(Icons.check_circle, 'Verifikasi Produk',
+            AppColors.secondary, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const ProductVerificationScreen()),
+              );
+            }),
+        _actionCard(Icons.people_alt, 'Kelola Users', Colors.blue, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const UserManagementScreen()),
+          );
+        }),
+        _actionCard(Icons.store_mall_directory, 'Kelola Bengkel',
+            Colors.purple, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const ProductVerificationScreen()),
+              );
+            }),
       ],
     );
   }
 
-  Widget _buildActionCard({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _actionCard(
+      IconData icon, String label, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: color.withOpacity(0.2),
+              child: Icon(icon, color: color),
             ),
+            const SizedBox(height: 10),
+            Text(label,
+                style:
+                TextStyle(fontWeight: FontWeight.w600, color: color)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildReportsSection() {
+  Widget _reportSection() {
     return Column(
       children: [
-        _buildReportCard(
-          icon: Icons.trending_up,
-          title: 'Laporan Pendapatan',
-          subtitle: CurrencyFormatter.format(_stats['totalRevenue'] ?? 0),
-          color: Colors.green,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const RevenueReportScreen(),
-              ),
-            );
-          },
+        _reportCard(
+          Icons.trending_up,
+          'Laporan Pendapatan',
+          CurrencyFormatter.format(_stats['revenue'] ?? 0),
+          Colors.green,
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const RevenueReportScreen()),
+          ),
         ),
         const SizedBox(height: 12),
-        _buildReportCard(
-          icon: Icons.analytics,
-          title: 'Laporan Aktivitas',
-          subtitle: 'Lihat aktivitas pengguna',
-          color: Colors.blue,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ActivityReportScreen(),
-              ),
-            );
-          },
+        _reportCard(
+          Icons.analytics,
+          'Laporan Aktivitas',
+          'Aktivitas pengguna aplikasi',
+          Colors.blue,
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const ActivityReportScreen()),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildReportCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _reportCard(IconData icon, String title, String subtitle,
+      Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 4)),
+          ],
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 28),
+            CircleAvatar(
+              backgroundColor: color.withOpacity(0.15),
+              child: Icon(icon, color: color),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(title,
+                      style:
+                      const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  Text(subtitle,
+                      style: const TextStyle(fontSize: 13)),
                 ],
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.chevron_right),
           ],
         ),
       ),
