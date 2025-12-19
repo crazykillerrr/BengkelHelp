@@ -11,6 +11,9 @@ class ReminderListScreen extends StatefulWidget {
 class _ReminderListScreenState extends State<ReminderListScreen> {
   int _selectedIndex = 2;
 
+  // ================= STATE REMINDER =================
+  bool _isReminderActive = true;
+
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
     setState(() => _selectedIndex = index);
@@ -109,31 +112,54 @@ class _ReminderListScreenState extends State<ReminderListScreen> {
                           child: Column(
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
                                 "Service Motor",
                                 style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _isReminderActive
+                                      ? Colors.black
+                                      : Colors.grey,
+                                ),
                               ),
-                              SizedBox(height: 10),
-                              Text(
+                              const SizedBox(height: 10),
+                              const Text(
                                 "9.00",
                                 style: TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(height: 2),
-                              Text(
+                              const SizedBox(height: 2),
+                              const Text(
                                 "Minggu, 26 Mei",
                                 style: TextStyle(color: Colors.grey),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _isReminderActive
+                                    ? "Status: Aktif"
+                                    : "Status: Nonaktif",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isReminderActive
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
                               ),
                             ],
                           ),
                         ),
+
+                        // ================= SWITCH =================
                         Switch(
-                          value: true,
-                          onChanged: (_) {},
+                          value: _isReminderActive,
+                          onChanged: (value) {
+                            setState(() {
+                              _isReminderActive = value;
+                            });
+                          },
                           activeColor: Colors.green,
                         ),
                       ],

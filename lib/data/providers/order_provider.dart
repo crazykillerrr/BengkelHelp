@@ -5,7 +5,7 @@ import '../models/order_model.dart';
 class OrderProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final List<OrderModel> _orders = [];
+  List<OrderModel> _orders = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -13,22 +13,24 @@ class OrderProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  // ===============================
+  // FETCH SELLER ORDERS
+  // ===============================
   Future<void> fetchSellerOrders(String sellerId) async {
     try {
       _isLoading = true;
+      _errorMessage = null;
       notifyListeners();
 
-      QuerySnapshot snapshot = await _firestore
+      final snapshot = await _firestore
           .collection('orders')
           .where('sellerId', isEqualTo: sellerId)
           .orderBy('createdAt', descending: true)
           .get();
 
-      _orders.clear();
-      _orders.addAll(
-        snapshot.docs.map((doc) => OrderModel.fromFirestore(doc)),
-      );
-
+      _orders = snapshot.docs
+          .map((doc) => OrderModel.fromFirestore(doc))
+          .toList();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -37,85 +39,81 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> createOrder(OrderModel order) async {
-  try {
-    if (order.sellerId.isEmpty) {
-      throw Exception('Seller ID tidak boleh kosong');
-    }
-
-    final docRef = await _firestore.collection('orders').add(order.toMap());
-
-    final newOrder = OrderModel(
-      id: docRef.id,
-      userId: order.userId,
-      sellerId: order.sellerId,
-      bengkelId: order.bengkelId,
-      type: order.type,
-      items: order.items,
-      totalAmount: order.totalAmount,
-      subtotal: order.subtotal,
-      deliveryFee: order.deliveryFee,
-      status: order.status,
-      paymentMethod: order.paymentMethod,
-      deliveryAddress: order.deliveryAddress,
-      deliveryLatitude: order.deliveryLatitude,
-      deliveryLongitude: order.deliveryLongitude,
-      createdAt: order.createdAt,
-      completedAt: order.completedAt,
-    );
-
-    _orders.insert(0, newOrder);
-    notifyListeners();
-    return true;
-
-  } catch (e) {
-    _errorMessage = e.toString();
-    notifyListeners();
-    return false;
-  }
-}
-
-Future<void> fetchUserOrders(String userId) async {
-  try {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    final snapshot = await _firestore
-        .collection('orders')
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .get();
-
-    _orders.clear();
-    _orders.addAll(
-      snapshot.docs.map((doc) => OrderModel.fromFirestore(doc)),
-    );
-
-  } catch (e) {
-    _errorMessage = e.toString();
-  } finally {
-    _isLoading = false;
-    notifyListeners();
-  }
-}
-
-
-  Future<bool> updateOrderStatus(String orderId, OrderStatus status) async {
+  // ===============================
+  // FETCH USER ORDERS
+  // ===============================
+  Future<void> fetchUserOrders(String userId) async {
     try {
-      await _firestore.collection('orders').doc(orderId).update({
-        'status': status.toString().split('.').last,
-        'updatedAt': Timestamp.now(),
-        if (status == OrderStatus.completed)
-          'completedAt': Timestamp.now(),
-      });
-
+      _isLoading = true;
+      _errorMessage = null;
       notifyListeners();
+
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      _orders = snapshot.docs
+          .map((doc) => OrderModel.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ===============================
+  // CREATE ORDER
+  // ===============================
+  Future<bool> createOrder(OrderModel order) async {
+    try {
+      if (order.sellerId.isEmpty) {
+        throw Exception('Seller ID tidak boleh kosong');
+      }
+
+      await _firestore.collection('orders').add(order.toMap());
+
+      // ❌ JANGAN insert ke _orders
+      // ✅ BIAR FETCH ULANG SESUAI ROLE
+
       return true;
     } catch (e) {
       _errorMessage = e.toString();
       notifyListeners();
       return false;
     }
+  }
+
+  // ===============================
+  // UPDATE STATUS
+  // ===============================
+  Future<bool> updateOrderStatus(String orderId, OrderStatus status) async {
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'status': status.name,
+        'updatedAt': Timestamp.now(),
+        if (status == OrderStatus.completed)
+          'completedAt': Timestamp.now(),
+      });
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ===============================
+  // CLEAR LOCAL CACHE (LOGOUT)
+  // ===============================
+  void clearLocal() {
+    _orders = [];
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
   }
 }

@@ -31,6 +31,7 @@ import 'package:bengkelhelp/presentation/screens/seller/bengkel/register_bengkel
 import 'package:bengkelhelp/presentation/screens/seller/product/add_product_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/product/edit_product_screen.dart';
 import 'package:bengkelhelp/presentation/screens/seller/order/incoming_order_screen.dart';
+import 'package:bengkelhelp/presentation/screens/seller/bengkel/manage_bengkel_screen.dart';
 
 
 // Admin screens
@@ -66,6 +67,7 @@ class AppRoutes {
   static const String registerBengkel = '/register-bengkel';
   static const String addProduct = '/add-product';
   static const String incomingOrders = '/incoming-orders';
+  static const String manageBengkel = '/manage-bengkel';
 
   static const String editProduct = '/edit-product';
 
@@ -73,7 +75,7 @@ class AppRoutes {
   static const String booking = '/booking';
   // Admin routes
   static const String adminHome = '/admin-home';
-  static const String manageBengkel = '/bengkel-management';
+  static const String bengkelManage = '/bengkel-management';
   static const String manageUser = '/user-management';
   static const String revenueReport = '/revenue-report';
   static const String activityReport = '/activity-report';
@@ -174,8 +176,10 @@ class AppRoutes {
       );
 
       case incomingOrders:
-    return MaterialPageRoute(builder: (_) => const IncomingOrderScreen());
+      return MaterialPageRoute(builder: (_) => const IncomingOrderScreen());
 
+      case manageBengkel:
+        return MaterialPageRoute(builder: (_) => const ManageBengkelScreen());
   
 
       default:
